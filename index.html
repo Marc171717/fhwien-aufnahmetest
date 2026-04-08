@@ -1210,11 +1210,16 @@ function generateQuestions(cat, count) {
     const qs = [];
     const generators = { logik: generateLogik, muster: generateMuster, mathe: generateMathe, wort: generateWort, grammar: generateGrammar, vocab: generateVocab };
     const gen = generators[cat];
-    const seen = new Set();
     let attempts = 0;
-    while (qs.length < count && attempts < count * 3) {
+    while (qs.length < count && attempts < count * 5) {
         const q = gen();
-        if (!seen.has(q.text)) { seen.add(q.text); qs.push(q); }
+        // Pattern questions are always unique (randomly generated SVGs), skip duplicate check for them
+        if (q.type === 'pattern') { qs.push(q); }
+        else {
+            const key = q.text + q.options.join('');
+            const dominated = qs.some(existing => existing.text === q.text);
+            if (!dominated) qs.push(q);
+        }
         attempts++;
     }
     return qs;
