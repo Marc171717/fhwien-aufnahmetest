@@ -486,6 +486,7 @@
             <button class="tab active" data-testtab="ueben-test">Nach Kategorie ueben</button>
             <button class="tab" data-testtab="probetest">Probetest</button>
             <button class="tab" data-testtab="statistik">Statistik</button>
+            <button class="tab" data-testtab="challenge">Challenge</button>
             <button class="tab" data-testtab="leaderboard">Rangliste</button>
         </div>
 
@@ -533,6 +534,32 @@
         <!-- Statistik -->
         <div class="section" id="statistik">
             <div id="statsArea"></div>
+        </div>
+
+        <!-- Challenge -->
+        <div class="section" id="challenge">
+            <div class="card" style="text-align:center">
+                <h3 style="font-size:1.3rem;margin-bottom:4px">Challenge-Modus</h3>
+                <p style="margin-bottom:20px">Gleicher Test, gleiche Fragen - wer schneidet besser ab?</p>
+
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
+                    <button class="btn btn-primary" onclick="createChallenge()" style="font-size:1rem;padding:14px 28px">
+                        Neue Challenge erstellen
+                    </button>
+                </div>
+
+                <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:8px">
+                    <p style="color:var(--text-muted);margin-bottom:12px">Oder Challenge-Code eingeben:</p>
+                    <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap">
+                        <input id="challengeCodeInput" class="name-input" placeholder="Code eingeben..."
+                            style="max-width:200px;margin:0;text-transform:uppercase;letter-spacing:2px;font-weight:700"
+                            maxlength="8">
+                        <button class="btn btn-primary" onclick="joinChallenge()">Beitreten</button>
+                    </div>
+                </div>
+            </div>
+            <div id="challengeArea"></div>
+            <div id="challengeHistory"></div>
         </div>
 
         <!-- Leaderboard -->
@@ -2210,6 +2237,395 @@ function loadAllState() {
     } catch(e) {}
 }
 
+// ======================== CHALLENGE MODUS ========================
+// Seeded PRNG so same code = same questions
+function seededRng(seed) {
+    let s = seed;
+    return function() {
+        s = (s * 1664525 + 1013904223) & 0xFFFFFFFF;
+        return (s >>> 0) / 0xFFFFFFFF;
+    };
+}
+
+function seededRand(rng, min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
+function seededShuffle(rng, arr) {
+    const a = [...arr];
+    for (let i = a.length-1; i > 0; i--) { const j = seededRand(rng, 0, i); [a[i],a[j]] = [a[j],a[i]]; }
+    return a;
+}
+
+function generateChallengeCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[rand(0, chars.length-1)];
+    return code;
+}
+
+function codeToSeed(code) {
+    let seed = 0;
+    for (let i = 0; i < code.length; i++) seed = seed * 31 + code.charCodeAt(i);
+    return Math.abs(seed);
+}
+
+function generateChallengeQuestions(seed, count) {
+    // Use the seed to deterministically pick questions
+    // We generate a large pool then use seeded shuffle to pick
+    const rng = seededRng(seed);
+    const allQuestions = [];
+
+    // Generate fixed pool per category using seed
+    const cats = ['logik','muster','mathe','wort','grammar','vocab'];
+    const perCat = Math.ceil(count / cats.length);
+
+    // Override Math.random temporarily with seeded version for generators
+    const origRandom = Math.random;
+    Math.random = rng;
+
+    cats.forEach(cat => {
+        const qs = generateQuestions(cat, perCat);
+        qs.forEach(q => allQuestions.push({ ...q, cat }));
+    });
+
+    Math.random = origRandom;
+
+    // Seeded shuffle and pick
+    const shuffled = seededShuffle(rng, allQuestions);
+    return shuffled.slice(0, count);
+}
+
+let challengeState = null;
+let challenges = JSON.parse(localStorage.getItem('fhwien-challenges') || '[]');
+
+function createChallenge() {
+    const code = generateChallengeCode();
+    document.getElementById('challengeArea').innerHTML = `
+        <div class="card" style="text-align:center">
+            <h3>Dein Challenge-Code</h3>
+            <div style="font-size:2.5rem;font-weight:800;letter-spacing:6px;color:var(--primary);margin:20px 0;font-family:monospace">
+                ${code}
+            </div>
+            <p style="color:var(--text-muted);margin-bottom:16px">Schick diesen Code deinem Gegner. Wer den gleichen Code eingibt, bekommt exakt die gleichen Fragen!</p>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+                <button class="btn btn-secondary" onclick="copyCode('${code}')">Code kopieren</button>
+                <button class="btn btn-secondary" onclick="shareChallenge('${code}')">Per WhatsApp teilen</button>
+            </div>
+            <div style="border-top:1px solid #e5e7eb;padding-top:16px;margin-top:8px">
+                <p style="color:var(--text-muted);margin-bottom:12px">Fragenanzahl:</p>
+                <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+                    <button class="test-opt active" onclick="setChallengeLen(20,this)" id="clen20">20</button>
+                    <button class="test-opt" onclick="setChallengeLen(30,this)" id="clen30">30</button>
+                    <button class="test-opt" onclick="setChallengeLen(40,this)" id="clen40">40</button>
+                </div>
+                <p style="color:var(--text-muted);margin-bottom:12px">
+                    Zeitlimit: <strong id="challengeTimeDisplay" style="color:var(--primary)">20 Minuten</strong>
+                </p>
+                <input type="range" id="challengeTimeSlider" min="5" max="60" step="5" value="20"
+                    oninput="document.getElementById('challengeTimeDisplay').textContent=this.value+' Minuten'"
+                    style="width:100%;max-width:300px;accent-color:var(--primary);cursor:pointer">
+                <div style="margin-top:20px">
+                    <button class="btn btn-primary" onclick="startChallenge('${code}')" style="font-size:1.1rem;padding:14px 36px">
+                        Challenge starten!
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    window._challengeLen = 20;
+}
+
+function setChallengeLen(n, btn) {
+    window._challengeLen = n;
+    document.querySelectorAll('#challengeArea .test-opt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function copyCode(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        btn.textContent = 'Kopiert!';
+        setTimeout(() => btn.textContent = 'Code kopieren', 2000);
+    });
+}
+
+function shareChallenge(code) {
+    const url = window.location.href.split('?')[0];
+    const text = `Ich fordere dich heraus! FH Wien Aufnahmetest Challenge 🎓\n\nCode: ${code}\nLink: ${url}?challenge=${code}\n\nWer schneidet besser ab?`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function joinChallenge() {
+    const code = document.getElementById('challengeCodeInput').value.trim().toUpperCase();
+    if (code.length < 4) { alert('Bitte gueltigen Code eingeben!'); return; }
+    document.getElementById('challengeArea').innerHTML = `
+        <div class="card" style="text-align:center">
+            <h3>Challenge: ${code}</h3>
+            <p style="color:var(--text-muted);margin-bottom:16px">Du nimmst an einer Challenge teil!</p>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+                <button class="test-opt active" onclick="setChallengeLen(20,this)">20</button>
+                <button class="test-opt" onclick="setChallengeLen(30,this)">30</button>
+                <button class="test-opt" onclick="setChallengeLen(40,this)">40</button>
+            </div>
+            <p style="color:var(--text-muted);margin-bottom:12px">
+                Zeitlimit: <strong id="challengeTimeDisplay" style="color:var(--primary)">20 Minuten</strong>
+            </p>
+            <input type="range" id="challengeTimeSlider" min="5" max="60" step="5" value="20"
+                oninput="document.getElementById('challengeTimeDisplay').textContent=this.value+' Minuten'"
+                style="width:100%;max-width:300px;accent-color:var(--primary);cursor:pointer">
+            <div style="margin-top:20px">
+                <button class="btn btn-primary" onclick="startChallenge('${code}')" style="font-size:1.1rem;padding:14px 36px">
+                    Challenge starten!
+                </button>
+            </div>
+        </div>`;
+    window._challengeLen = 20;
+}
+
+function startChallenge(code) {
+    const count = window._challengeLen || 20;
+    const timeMins = parseInt(document.getElementById('challengeTimeSlider')?.value || 20);
+    const seed = codeToSeed(code);
+    const questions = generateChallengeQuestions(seed, count);
+
+    challengeState = {
+        code,
+        questions,
+        answers: new Array(questions.length).fill(null),
+        index: 0,
+        timeLimit: timeMins * 60,
+        timeLeft: timeMins * 60,
+        timer: null,
+        startedAt: Date.now()
+    };
+
+    renderChallengeQuestion();
+    challengeState.timer = setInterval(() => {
+        challengeState.timeLeft--;
+        updateChallengeTimer();
+        if (challengeState.timeLeft <= 0) finishChallenge();
+    }, 1000);
+}
+
+function updateChallengeTimer() {
+    const el = document.getElementById('challengeTimer');
+    if (!el) return;
+    const m = Math.floor(challengeState.timeLeft / 60);
+    const s = challengeState.timeLeft % 60;
+    el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    if (challengeState.timeLeft <= 60) el.className = 'test-timer danger';
+    else if (challengeState.timeLeft <= challengeState.timeLimit * 0.25) el.className = 'test-timer warning';
+    else el.className = 'test-timer';
+}
+
+function renderChallengeQuestion() {
+    const cs = challengeState;
+    const q = cs.questions[cs.index];
+    const selected = cs.answers[cs.index];
+    const letters = ['A','B','C','D'];
+    const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+    const badgeClass = { logik: 'badge-logik', muster: 'badge-logik', mathe: 'badge-mathe', wort: 'badge-wort', grammar: 'badge-grammar', vocab: 'badge-vocab' };
+
+    let questionBody = '';
+    if (q.type === 'pattern') {
+        const gridHtml = q.gridSvgs.map(svg => `<div class="pattern-cell-svg">${svg}</div>`).join('')
+            + '<div class="pattern-cell-svg question-mark">?</div>';
+        const choicesHtml = q.choices.map((ch, i) => {
+            let cls = 'pattern-choice';
+            if (i === selected) cls += ' selected';
+            return `<div class="${cls}" onclick="challengeAnswer(${i})">${ch.svg}</div>`;
+        }).join('');
+        questionBody = `<div class="quiz-question-text">${cs.index + 1}. ${q.text}</div>
+            <div class="pattern-matrix">${gridHtml}</div>
+            <div class="pattern-choices">${choicesHtml}</div>`;
+    } else {
+        const optionsHtml = q.options.map((opt, i) => {
+            let cls = 'quiz-option';
+            if (i === selected) cls += ' selected';
+            return `<div class="${cls}" onclick="challengeAnswer(${i})">
+                <span class="letter">${letters[i]}</span><span>${opt}</span>
+            </div>`;
+        }).join('');
+        questionBody = `<div class="quiz-question-text">${cs.index + 1}. ${q.text}</div>
+            <div class="quiz-options">${optionsHtml}</div>`;
+    }
+
+    let dots = cs.questions.map((_, i) => {
+        let bg = 'var(--surface2)';
+        if (i === cs.index) bg = 'var(--primary)';
+        else if (cs.answers[i] !== null) bg = 'rgba(0,154,204,0.4)';
+        return `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;margin:2px;cursor:pointer;background:${bg};${i!==cs.index&&cs.answers[i]===null?'border:1px solid #d1d5db':''}" onclick="challengeJump(${i})"></span>`;
+    }).join('');
+
+    const answeredCount = cs.answers.filter(a => a !== null).length;
+
+    document.getElementById('challengeArea').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="background:var(--primary);color:white;padding:6px 14px;border-radius:9999px;font-size:0.8rem;font-weight:700;letter-spacing:1px">
+                CHALLENGE: ${cs.code}
+            </div>
+            <div class="test-timer" id="challengeTimer" style="margin:0"></div>
+        </div>
+        <div class="progress-bar" style="margin-bottom:16px">
+            <div class="progress-fill" style="width:${(answeredCount/cs.questions.length)*100}%"></div>
+        </div>
+        <div class="quiz-question">
+            <span class="quiz-category-badge ${badgeClass[q.cat]}">${catNames[q.cat]}</span>
+            ${questionBody}
+            <div class="quiz-nav" style="margin-top:20px">
+                <button class="btn btn-secondary" onclick="challengeNav(-1)" ${cs.index===0?'disabled style="opacity:0.4"':''}>Zurueck</button>
+                <button class="btn btn-primary" onclick="challengeNav(1)">
+                    ${cs.index === cs.questions.length - 1 ? 'Weiter' : 'Naechste'}
+                </button>
+                ${answeredCount > 0 ? '<button class="btn btn-success" onclick="finishChallenge()">Abgeben</button>' : ''}
+                <span class="quiz-counter">${cs.index + 1} / ${cs.questions.length}</span>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:12px;line-height:2">${dots}</div>
+    `;
+    updateChallengeTimer();
+}
+
+function challengeAnswer(i) { challengeState.answers[challengeState.index] = i; renderChallengeQuestion(); }
+function challengeJump(i) { challengeState.index = i; renderChallengeQuestion(); }
+function challengeNav(dir) {
+    const newIdx = challengeState.index + dir;
+    if (newIdx >= 0 && newIdx < challengeState.questions.length) {
+        challengeState.index = newIdx;
+        renderChallengeQuestion();
+    }
+}
+
+function finishChallenge() {
+    clearInterval(challengeState.timer);
+    const cs = challengeState;
+    const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+
+    let correct = 0, wrong = 0, unanswered = 0;
+    const catResults = {};
+    cs.questions.forEach((q, i) => {
+        if (!catResults[q.cat]) catResults[q.cat] = { correct: 0, total: 0 };
+        catResults[q.cat].total++;
+        const ci = getCorrectIdx(q);
+        if (cs.answers[i] === null) unanswered++;
+        else if (cs.answers[i] === ci) { correct++; catResults[q.cat].correct++; }
+        else wrong++;
+    });
+
+    const pct = Math.round((correct / cs.questions.length) * 100);
+    const timeUsed = cs.timeLimit - cs.timeLeft;
+    const mUsed = Math.floor(timeUsed / 60);
+    const sUsed = timeUsed % 60;
+
+    // Save challenge result
+    const result = { code: cs.code, name: playerName, score: pct, correct, total: cs.questions.length, time: timeUsed, date: new Date().toLocaleDateString('de-AT') };
+    challenges.push(result);
+    localStorage.setItem('fhwien-challenges', JSON.stringify(challenges));
+    saveToLeaderboard(pct, correct, cs.questions.length, timeUsed);
+
+    // Generate result code for sharing (encodes score + time)
+    const resultCode = btoa(JSON.stringify({ n: playerName, s: pct, c: correct, t: cs.questions.length, tm: timeUsed })).slice(0,20);
+
+    let catHtml = Object.entries(catResults).map(([cat, r]) => `
+        <div class="score-cat">
+            <div class="cat-score" style="color:${r.correct/r.total >= 0.7 ? 'var(--success)' : r.correct/r.total >= 0.5 ? 'var(--warning)' : 'var(--danger)'}">${r.correct}/${r.total}</div>
+            <div class="cat-label">${catNames[cat]}</div>
+        </div>`).join('');
+
+    // Find other results with same code
+    const sameCode = challenges.filter(c => c.code === cs.code);
+    let comparisonHtml = '';
+    if (sameCode.length > 1) {
+        const sorted = [...sameCode].sort((a,b) => b.score - a.score || a.time - b.time);
+        comparisonHtml = `
+            <div class="card" style="margin-top:20px">
+                <h3>Challenge-Ergebnis: ${cs.code}</h3>
+                ${sorted.map((r, i) => {
+                    const medal = i === 0 ? 'gold' : i === 1 ? 'silver' : '';
+                    const tm = Math.floor(r.time/60);
+                    const ts = r.time%60;
+                    return `<div class="lb-entry ${medal}">
+                        <div class="lb-rank" ${!medal?'style="background:var(--surface2)"':''}>${i+1}</div>
+                        <div class="lb-name">${r.name || 'Anonym'}
+                            <div class="lb-details">${r.correct}/${r.total} | ${tm}:${ts.toString().padStart(2,'0')}</div>
+                        </div>
+                        <div class="lb-score">${r.score}%</div>
+                    </div>`;
+                }).join('')}
+            </div>`;
+    }
+
+    let feedback = pct >= 85 ? 'Ausgezeichnet!' : pct >= 70 ? 'Sehr gut!' : pct >= 55 ? 'Solide!' : pct >= 40 ? 'Weiter ueben!' : 'Nicht aufgeben!';
+
+    const shareText = `FH Wien Challenge ${cs.code}: ${pct}% (${correct}/${cs.questions.length}) in ${mUsed}:${sUsed.toString().padStart(2,'0')} - Schlag das! 🎓`;
+
+    document.getElementById('challengeArea').innerHTML = `
+        <div class="results-panel" style="margin-bottom:20px">
+            <div style="background:var(--primary);color:white;padding:6px 14px;border-radius:9999px;font-size:0.8rem;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:16px">
+                CHALLENGE: ${cs.code}
+            </div>
+            <div class="score-big">${pct}%</div>
+            <div class="score-label">${feedback}</div>
+            <div style="margin:16px 0;color:var(--text-muted)">
+                ${correct} richtig | ${wrong} falsch | ${unanswered} offen | Zeit: ${mUsed}:${sUsed.toString().padStart(2,'0')}
+            </div>
+            <div class="score-breakdown">${catHtml}</div>
+            <div class="btn-group" style="justify-content:center;margin-top:20px">
+                <button class="btn btn-primary" onclick="shareResult('${encodeURIComponent(shareText)}')">Ergebnis teilen</button>
+                <button class="btn btn-secondary" onclick="createChallenge()">Neue Challenge</button>
+            </div>
+        </div>
+        ${comparisonHtml}
+    `;
+
+    renderChallengeHistory();
+    challengeState = null;
+}
+
+function shareResult(text) {
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+function renderChallengeHistory() {
+    const el = document.getElementById('challengeHistory');
+    if (!el || challenges.length === 0) return;
+
+    // Group by code
+    const grouped = {};
+    challenges.forEach(c => { if (!grouped[c.code]) grouped[c.code] = []; grouped[c.code].push(c); });
+
+    const entries = Object.entries(grouped).reverse().slice(0, 10);
+    el.innerHTML = `
+        <div class="card" style="margin-top:16px">
+            <h3>Vergangene Challenges</h3>
+            ${entries.map(([code, results]) => {
+                const sorted = [...results].sort((a,b) => b.score - a.score);
+                return `<div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                        <span style="font-weight:700;font-family:monospace;letter-spacing:1px;color:var(--primary)">${code}</span>
+                        <span style="font-size:0.8rem;color:var(--text-muted)">${results[0].date}</span>
+                    </div>
+                    ${sorted.map((r,i) => `<div style="display:flex;justify-content:space-between;font-size:0.9rem;padding:2px 0">
+                        <span>${i===0?'🏆':''} ${r.name||'Anonym'}</span>
+                        <span style="font-weight:700;color:${r.score>=70?'var(--success)':'var(--text-muted)'}">${r.score}%</span>
+                    </div>`).join('')}
+                </div>`;
+            }).join('')}
+        </div>`;
+}
+
+// Check URL for challenge code on load
+function checkChallengeUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('challenge');
+    if (code) {
+        // Switch to test mode, challenge tab
+        document.querySelectorAll('.mode-btn')[0].click();
+        setTimeout(() => {
+            document.querySelector('[data-testtab="challenge"]').click();
+            document.getElementById('challengeCodeInput').value = code;
+            joinChallenge();
+        }, 100);
+    }
+}
+
 // ======================== LEADERBOARD & NAME SYSTEM ========================
 let playerName = localStorage.getItem('fhwien-player') || '';
 let leaderboard = JSON.parse(localStorage.getItem('fhwien-leaderboard') || '[]');
@@ -2286,6 +2702,8 @@ function checkName() {
     }
     updatePlayerDisplay();
     renderLeaderboard();
+    renderChallengeHistory();
+    checkChallengeUrl();
 }
 
 // Override init to include name check
