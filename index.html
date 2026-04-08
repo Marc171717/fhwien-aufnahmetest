@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FH Wien - Aufnahmetest & Interview Vorbereitung</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+        :root {
+            --primary: #009acc;
+            --primary-dark: #007ea8;
+            --primary-light: #e6f6fc;
+            --secondary: #503795;
+            --bg: #f4f6f9;
+            --surface: #ffffff;
+            --surface2: #eef1f5;
+            --text: #1a1a2e;
+            --text-muted: #6b7280;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --radius: 12px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .app { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        .header { text-align: center; padding: 32px 20px 24px; }
+        .header h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .header p { color: var(--text-muted); font-size: 1rem; }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex; gap: 12px; margin-bottom: 28px; justify-content: center; flex-wrap: wrap;
+        }
+        .mode-btn {
+            padding: 16px 28px; border-radius: 9999px; border: 2px solid var(--surface2);
+            background: var(--surface); color: var(--text); cursor: pointer;
+            font-size: 1rem; font-weight: 600; transition: all 0.3s; text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .mode-btn:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,154,204,0.15); }
+        .mode-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+        .mode-btn small { display: block; font-weight: 400; font-size: 0.8rem; margin-top: 4px; opacity: 0.8; }
+
+        /* Main sections */
+        .main-section { display: none; }
+        .main-section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--surface); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        .progress-header {
+            display: flex; justify-content: space-between; margin-bottom: 10px;
+            font-size: 0.9rem; color: var(--text-muted);
+        }
+        .progress-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+        .progress-fill {
+            height: 100%; background: var(--primary);
+            border-radius: 4px; transition: width 0.5s ease; width: 0%;
+        }
+        .stats { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+        .stat { background: var(--surface2); padding: 8px 14px; border-radius: 10px; font-size: 0.85rem; }
+        .stat strong { color: var(--primary); }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab {
+            padding: 10px 20px; border-radius: 9999px; border: 2px solid var(--surface2);
+            background: var(--surface); color: var(--text-muted); cursor: pointer;
+            font-size: 0.9rem; transition: all 0.3s; font-weight: 600;
+        }
+        .tab:hover { border-color: var(--primary); color: var(--text); }
+        .tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border-radius: var(--radius); padding: 24px;
+            margin-bottom: 16px; border: 1px solid #e5e7eb; transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,154,204,0.1); }
+        .card h3 { color: var(--primary); margin-bottom: 12px; font-size: 1.05rem; }
+        .card p { color: var(--text-muted); line-height: 1.6; }
+
+        /* Quiz Styles */
+        .quiz-header {
+            background: var(--surface); border-radius: var(--radius); padding: 24px;
+            margin-bottom: 20px; text-align: center;
+        }
+        .quiz-header h2 { margin-bottom: 8px; }
+        .quiz-category-badge {
+            display: inline-block; padding: 5px 14px; border-radius: 9999px;
+            font-size: 0.8rem; font-weight: 600; margin-bottom: 12px;
+        }
+        .badge-logik { background: #e6f6fc; color: #009acc; }
+        .badge-mathe { background: #ecfdf5; color: #16a34a; }
+        .badge-wort { background: #fffbeb; color: #d97706; }
+        .badge-grammar { background: #f3e8ff; color: #7c3aed; }
+        .badge-vocab { background: #eff6ff; color: #2563eb; }
+
+        .quiz-question {
+            background: var(--surface); border-radius: var(--radius); padding: 28px; margin-bottom: 20px;
+            box-shadow: var(--shadow); border: 1px solid #e5e7eb;
+        }
+        .quiz-question-text { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; color: var(--text); }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-option {
+            padding: 14px 18px; border-radius: 10px; border: 2px solid #e5e7eb;
+            background: var(--surface); cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 12px; font-size: 0.95rem;
+        }
+        .quiz-option:hover { border-color: var(--primary); background: var(--primary-light); }
+        .quiz-option.selected { border-color: var(--primary); background: var(--primary-light); }
+        .quiz-option.correct { border-color: var(--success); background: #ecfdf5; }
+        .quiz-option.wrong { border-color: var(--danger); background: #fef2f2; }
+        .quiz-option .letter {
+            width: 30px; height: 30px; border-radius: 8px; background: var(--surface2);
+            display: flex; align-items: center; justify-content: center; font-weight: 700;
+            flex-shrink: 0; color: var(--text-muted);
+        }
+        .quiz-option.selected .letter { background: var(--primary); color: white; }
+        .quiz-option.correct .letter { background: var(--success); color: white; }
+        .quiz-option.wrong .letter { background: var(--danger); color: white; }
+
+        .quiz-explanation {
+            background: #fffbeb; border-radius: 10px; padding: 16px; margin-top: 16px;
+            border-left: 3px solid var(--warning); display: none;
+        }
+        .quiz-explanation.show { display: block; }
+        .quiz-explanation p { color: #92400e; line-height: 1.5; }
+
+        .quiz-nav { display: flex; gap: 10px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
+        .quiz-counter { color: var(--text-muted); font-size: 0.9rem; margin-left: auto; }
+
+        /* Math Input */
+        .math-input {
+            background: var(--surface2); border: 2px solid transparent; border-radius: 12px;
+            padding: 14px 18px; color: var(--text); font-family: inherit; font-size: 1.1rem;
+            outline: none; width: 100%; transition: border-color 0.3s;
+        }
+        .math-input:focus { border-color: var(--primary); }
+
+        /* Pattern Grid */
+        .pattern-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            max-width: 400px; margin: 0 auto 20px;
+        }
+        .pattern-cell {
+            aspect-ratio: 1; border-radius: 12px; border: 2px solid var(--surface2);
+            display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+            background: var(--surface2); cursor: pointer; transition: all 0.3s;
+        }
+        .pattern-cell:hover { border-color: var(--primary); }
+        .pattern-cell.selected { border-color: var(--primary); background: rgba(108,99,255,0.15); }
+        .pattern-cell.correct { border-color: var(--success); background: rgba(44,182,125,0.15); }
+        .pattern-cell.wrong { border-color: var(--secondary); background: rgba(255,101,132,0.15); }
+        .pattern-cell.highlight { border-color: var(--warning); }
+
+        /* Test Mode */
+        .test-config {
+            background: var(--surface); border-radius: var(--radius); padding: 32px;
+            text-align: center; margin-bottom: 20px;
+        }
+        .test-config h2 { margin-bottom: 16px; }
+        .test-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+        .test-opt {
+            padding: 12px 20px; border-radius: 9999px; border: 2px solid #e5e7eb;
+            background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.2s;
+            font-weight: 600; font-size: 0.9rem;
+        }
+        .test-opt:hover { border-color: var(--primary); }
+        .test-opt.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+
+        /* Results */
+        .results-panel {
+            background: var(--surface); border-radius: var(--radius); padding: 32px; text-align: center;
+        }
+        .score-big {
+            font-size: 4rem; font-weight: 800;
+            color: var(--primary);
+        }
+        .score-breakdown { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+        .score-cat {
+            background: var(--surface2); padding: 12px 18px; border-radius: 12px;
+            text-align: center; min-width: 140px;
+        }
+        .score-cat .cat-score { font-size: 1.4rem; font-weight: 700; }
+        .score-cat .cat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* Timer */
+        .test-timer {
+            font-size: 1.8rem; font-weight: 700; font-variant-numeric: tabular-nums;
+            color: var(--success); text-align: center; margin-bottom: 16px;
+        }
+        .test-timer.warning { color: var(--warning); }
+        .test-timer.danger { color: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px; border-radius: 9999px; border: none;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,154,204,0.3); }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid #e5e7eb; }
+        .btn-secondary:hover { background: #e2e5ea; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+        /* Question Practice area */
+        .question-card { background: var(--surface); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid #e5e7eb; }
+        .question-category { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 12px; }
+        .cat-motivation { background: #e6f6fc; color: #009acc; }
+        .cat-fachlich { background: #ecfdf5; color: #16a34a; }
+        .cat-persoenlich { background: #fef2f2; color: #dc2626; }
+        .cat-situativ { background: #fffbeb; color: #d97706; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; line-height: 1.4; }
+        .answer-area {
+            width: 100%; min-height: 150px; background: var(--surface2); border: 2px solid transparent;
+            border-radius: 12px; padding: 16px; color: var(--text); font-family: inherit; font-size: 1rem;
+            resize: vertical; outline: none; transition: border-color 0.3s; line-height: 1.6;
+        }
+        .answer-area:focus { border-color: var(--primary); }
+        .answer-area::placeholder { color: #9ca3af; }
+
+        .timer-container { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .timer { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--success); }
+        .timer.warning { color: var(--warning); }
+        .timer.danger { color: var(--danger); animation: pulse 1s infinite; }
+
+        .tips-toggle { background: var(--surface2); border-radius: 12px; margin-top: 16px; overflow: hidden; }
+        .tips-header {
+            padding: 14px 18px; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; font-weight: 600; color: var(--warning);
+        }
+        .tips-header:hover { background: #e8eaed; }
+        .tips-content { padding: 0 18px; max-height: 0; overflow: hidden; transition: all 0.3s ease; }
+        .tips-content.open { padding: 0 18px 18px; max-height: 500px; }
+        .tips-content ul { list-style: none; padding: 0; }
+        .tips-content li { padding: 6px 0; color: var(--text-muted); line-height: 1.5; }
+        .tips-content li::before { content: "-> "; color: var(--warning); }
+
+        .rating-container { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
+        .rating-label { color: var(--text-muted); font-size: 0.9rem; margin-right: 8px; }
+        .rating-star { font-size: 1.6rem; cursor: pointer; transition: transform 0.2s; filter: grayscale(1) opacity(0.3); }
+        .rating-star:hover { transform: scale(1.2); }
+        .rating-star.filled { filter: none; }
+
+        /* Flashcard */
+        .flashcard-container { perspective: 1000px; margin-bottom: 20px; }
+        .flashcard {
+            width: 100%; min-height: 200px; position: relative;
+            transform-style: preserve-3d; transition: transform 0.6s; cursor: pointer;
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-face {
+            position: absolute; width: 100%; min-height: 200px; backface-visibility: hidden;
+            border-radius: var(--radius); padding: 28px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+        .flashcard-front { background: linear-gradient(135deg, var(--surface), var(--surface2)); border: 2px solid var(--primary); }
+        .flashcard-back { background: linear-gradient(135deg, var(--surface2), var(--surface)); border: 2px solid var(--success); transform: rotateY(180deg); }
+        .flashcard-front h3 { font-size: 1.15rem; line-height: 1.5; }
+        .flashcard-back p { color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; }
+        .flashcard-hint { color: var(--text-muted); font-size: 0.8rem; margin-top: 12px; opacity: 0.6; }
+
+        /* Simulation Overlay */
+        .sim-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); z-index: 1000; display: none;
+            justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .sim-overlay.active { display: flex; }
+        .sim-panel {
+            background: var(--surface); border-radius: 20px; padding: 40px;
+            max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;
+        }
+        .sim-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .sim-interviewer { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+        .sim-avatar {
+            width: 50px; height: 50px; background: var(--primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+        }
+
+        /* Leaderboard */
+        .leaderboard { margin-top: 20px; }
+        .lb-entry {
+            display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+            background: var(--surface); border: 1px solid #e5e7eb; border-radius: 10px;
+            margin-bottom: 8px; box-shadow: var(--shadow);
+        }
+        .lb-entry.gold { border-color: #fbbf24; background: #fffbeb; }
+        .lb-entry.silver { border-color: #9ca3af; background: #f9fafb; }
+        .lb-entry.bronze { border-color: #d97706; background: #fffbeb; }
+        .lb-rank {
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+        }
+        .lb-entry.gold .lb-rank { background: #fbbf24; color: white; }
+        .lb-entry.silver .lb-rank { background: #9ca3af; color: white; }
+        .lb-entry.bronze .lb-rank { background: #d97706; color: white; }
+        .lb-name { flex: 1; font-weight: 600; }
+        .lb-score { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+        .lb-details { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Pattern SVG Grid */
+        .pattern-matrix {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+            max-width: 320px; margin: 0 auto 20px; background: #d1d5db; padding: 4px;
+            border-radius: 8px;
+        }
+        .pattern-cell-svg {
+            aspect-ratio: 1; background: white; display: flex; align-items: center;
+            justify-content: center; border-radius: 4px;
+        }
+        .pattern-cell-svg.question-mark {
+            background: var(--primary-light); font-size: 2rem; font-weight: 700; color: var(--primary);
+        }
+        .pattern-choices {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+            max-width: 400px; margin: 0 auto 16px;
+        }
+        .pattern-choice {
+            aspect-ratio: 1; background: white; border: 2px solid #e5e7eb; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: all 0.2s; padding: 8px;
+        }
+        .pattern-choice:hover { border-color: var(--primary); background: var(--primary-light); }
+        .pattern-choice.selected { border-color: var(--primary); background: var(--primary-light); }
+
+        /* Name Input Modal */
+        .name-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000; display: none;
+            justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .name-modal.active { display: flex; }
+        .name-panel {
+            background: white; border-radius: 16px; padding: 32px; max-width: 400px;
+            width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .name-input {
+            width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px;
+            font-size: 1.1rem; outline: none; text-align: center; font-family: inherit;
+            margin: 16px 0;
+        }
+        .name-input:focus { border-color: var(--primary); }
+
+        /* Checklist */
+        .checklist { list-style: none; padding: 0; }
+        .checklist li {
+            padding: 12px 16px; background: var(--surface2); border-radius: 10px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s;
+        }
+        .checklist li:hover { background: #e2e5ea; }
+        .checklist li .check {
+            width: 22px; height: 22px; border: 2px solid var(--text-muted); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
+        }
+        .checklist li.done .check { background: var(--success); border-color: var(--success); }
+        .checklist li.done .check::after { content: "✓"; color: white; font-size: 0.85rem; font-weight: bold; }
+        .checklist li.done span { text-decoration: line-through; color: var(--text-muted); }
+
+        .score-display { text-align: center; padding: 30px; background: var(--surface); border-radius: var(--radius); }
+        .score-label { color: var(--text-muted); margin-top: 8px; }
+
+        @media (max-width: 600px) {
+            .app { padding: 12px; }
+            .header { padding: 24px 12px 16px; }
+            .header h1 { font-size: 1.4rem; }
+            .header p { font-size: 0.85rem; }
+            .mode-selector { gap: 8px; }
+            .mode-btn { padding: 12px 16px; font-size: 0.85rem; flex: 1; min-width: 120px; }
+            .mode-btn small { font-size: 0.7rem; }
+            .tabs { gap: 4px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+            .tab { padding: 8px 14px; font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
+            .progress-container { padding: 14px 16px; }
+            .stats { gap: 8px; flex-wrap: wrap; }
+            .stat { padding: 6px 10px; font-size: 0.8rem; }
+            .card { padding: 16px; }
+            .card h3 { font-size: 0.95rem; }
+            .card p { font-size: 0.85rem; }
+            .quiz-question { padding: 16px; }
+            .quiz-question-text { font-size: 0.95rem; margin-bottom: 14px; }
+            .quiz-option { padding: 12px 14px; font-size: 0.9rem; gap: 10px; }
+            .quiz-option .letter { width: 26px; height: 26px; font-size: 0.8rem; }
+            .quiz-nav { gap: 6px; }
+            .btn { padding: 10px 18px; font-size: 0.85rem; }
+            .btn-group { gap: 6px; }
+            .test-config { padding: 20px 16px; }
+            .test-config h2 { font-size: 1.2rem; }
+            .test-options { gap: 6px; }
+            .test-opt { padding: 10px 14px; font-size: 0.8rem; }
+            #catButtons { gap: 6px !important; }
+            #catButtons .test-opt { padding: 8px 12px; font-size: 0.75rem; }
+            .pattern-matrix { max-width: 260px; gap: 3px; padding: 3px; }
+            .pattern-choices { max-width: 300px; gap: 6px; }
+            .results-panel { padding: 20px 16px; }
+            .score-big { font-size: 3rem; }
+            .score-breakdown { gap: 6px; }
+            .score-cat { min-width: 100px; padding: 10px 12px; }
+            .score-cat .cat-score { font-size: 1.1rem; }
+            .test-timer { font-size: 1.4rem; }
+            .question-card { padding: 16px; }
+            .question-text { font-size: 1rem; }
+            .answer-area { min-height: 120px; font-size: 0.9rem; padding: 12px; }
+            .timer { font-size: 1.2rem; }
+            .flashcard-face { padding: 20px; min-height: 160px; }
+            .flashcard-front h3 { font-size: 1rem; }
+            .flashcard-back p { font-size: 0.85rem; }
+            .sim-panel { padding: 20px; }
+            .lb-entry { padding: 10px 14px; gap: 10px; }
+            .lb-rank { width: 30px; height: 30px; font-size: 0.8rem; }
+            .lb-name { font-size: 0.9rem; }
+            .lb-score { font-size: 1rem; }
+            .name-panel { padding: 24px 20px; }
+            .checklist li { padding: 10px 12px; font-size: 0.9rem; }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 380px) {
+            .header h1 { font-size: 1.2rem; }
+            .mode-btn { padding: 10px 12px; font-size: 0.8rem; }
+            .quiz-question { padding: 12px; }
+            .quiz-question-text { font-size: 0.9rem; }
+            .pattern-matrix { max-width: 220px; }
+            .pattern-choices { max-width: 260px; }
+        }
+
+        /* Touch-friendly: larger tap targets */
+        @media (pointer: coarse) {
+            .quiz-option { min-height: 48px; }
+            .tab { min-height: 40px; }
+            .btn { min-height: 44px; }
+            .pattern-choice { min-height: 60px; }
+            .checklist li { min-height: 48px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>FH Wien Aufnahme-Vorbereitung</h1>
+        <p>Aufnahmetest & Interview - Interaktiver Kurs</p>
+    </div>
+
+    <!-- Mode Selector -->
+    <div class="mode-selector">
+        <button class="mode-btn active" onclick="switchMode('test')">
+            Aufnahmetest
+            <small>5 Kategorien, wie beim echten Test</small>
+        </button>
+        <button class="mode-btn" onclick="switchMode('interview')">
+            Interview
+            <small>Gespraechsvorbereitung</small>
+        </button>
+    </div>
+
+    <!-- ==================== AUFNAHMETEST ==================== -->
+    <div class="main-section active" id="testSection">
+
+        <div class="tabs" id="testTabs">
+            <button class="tab active" data-testtab="ueben-test">Nach Kategorie ueben</button>
+            <button class="tab" data-testtab="probetest">Probetest</button>
+            <button class="tab" data-testtab="statistik">Statistik</button>
+            <button class="tab" data-testtab="leaderboard">Rangliste</button>
+        </div>
+
+        <!-- Ueben nach Kategorie -->
+        <div class="section active" id="ueben-test">
+            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px" id="catButtons">
+                <button class="test-opt active" onclick="selectCat('logik')">Logisches Denken</button>
+                <button class="test-opt" onclick="selectCat('muster')">Muster erkennen</button>
+                <button class="test-opt" onclick="selectCat('mathe')">Mathematik</button>
+                <button class="test-opt" onclick="selectCat('wort')">Wortverstaendnis</button>
+                <button class="test-opt" onclick="selectCat('grammar')">Englisch Grammatik</button>
+                <button class="test-opt" onclick="selectCat('vocab')">Englisch Vokabular</button>
+            </div>
+            <div id="quizArea"></div>
+        </div>
+
+        <!-- Probetest -->
+        <div class="section" id="probetest">
+            <div class="test-config" id="testConfigPanel">
+                <h2>Probetest starten</h2>
+                <p style="color:var(--text-muted);margin-bottom:20px">Simuliere den echten FH Wien Aufnahmetest unter Zeitdruck</p>
+                <div class="test-options">
+                    <button class="test-opt active" onclick="setTestLength(20)" id="len20">20 Fragen (Kurz)</button>
+                    <button class="test-opt" onclick="setTestLength(40)" id="len40">40 Fragen (Standard)</button>
+                    <button class="test-opt" onclick="setTestLength(60)" id="len60">60 Fragen (Lang)</button>
+                </div>
+                <div style="margin:24px 0">
+                    <label style="color:var(--text-muted);display:block;margin-bottom:10px">
+                        Zeitlimit: <strong id="timeLimitDisplay" style="color:var(--primary);font-size:1.2rem">20 Minuten</strong>
+                    </label>
+                    <input type="range" id="timeSlider" min="5" max="90" step="5" value="20"
+                        oninput="setTimeLimit(this.value)"
+                        style="width:100%;max-width:400px;accent-color:var(--primary);height:8px;cursor:pointer">
+                    <div style="display:flex;justify-content:space-between;max-width:400px;margin:6px auto 0;color:var(--text-muted);font-size:0.75rem">
+                        <span>5 min</span><span>30 min</span><span>60 min</span><span>90 min</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="startProbetest()" style="font-size:1.1rem;padding:16px 40px">
+                    Test starten
+                </button>
+            </div>
+            <div id="probetestArea" style="display:none"></div>
+        </div>
+
+        <!-- Statistik -->
+        <div class="section" id="statistik">
+            <div id="statsArea"></div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="section" id="leaderboard">
+            <div class="card" style="text-align:center">
+                <h3>Rangliste</h3>
+                <p style="margin-bottom:16px">Vergleicht eure Probetest-Ergebnisse! Jeder Test wird automatisch gespeichert.</p>
+                <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap">
+                    <span style="color:var(--text-muted)">Aktueller Spieler:</span>
+                    <strong id="currentPlayerDisplay" style="color:var(--primary)">-</strong>
+                    <button class="btn btn-secondary" onclick="showNameModal()" style="padding:8px 16px;font-size:0.85rem">Name aendern</button>
+                </div>
+            </div>
+            <div id="leaderboardList"></div>
+        </div>
+    </div>
+
+    <!-- ==================== INTERVIEW ==================== -->
+    <div class="main-section" id="interviewSection">
+        <div class="progress-container">
+            <div class="progress-header">
+                <span>Fortschritt</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="stats">
+                <div class="stat">Beantwortet: <strong id="answeredCount">0</strong></div>
+                <div class="stat">Durchschnitt: <strong id="avgRating">-</strong></div>
+                <div class="stat">Uebungszeit: <strong id="totalTime">0 min</strong></div>
+            </div>
+        </div>
+
+        <div class="tabs" id="interviewTabs">
+            <button class="tab active" data-ivtab="lernen">Lernen</button>
+            <button class="tab" data-ivtab="ueben">Ueben</button>
+            <button class="tab" data-ivtab="flashcards">Flashcards</button>
+            <button class="tab" data-ivtab="simulation">Simulation</button>
+            <button class="tab" data-ivtab="checkliste">Checkliste</button>
+        </div>
+
+        <div class="section active" id="lernen">
+            <div class="card">
+                <h3>Was erwartet dich im Interview?</h3>
+                <p>Ein Aufnahmegespraech dauert typischerweise 15-30 Minuten. Die Kommission will herausfinden, ob du motiviert bist, zum Studiengang passt und die richtige Einstellung mitbringst. Es geht nicht um perfekte Antworten, sondern um Authentizitaet und Reflexionsfaehigkeit.</p>
+            </div>
+            <div class="card">
+                <h3>Die 4 Saeulen eines guten Interviews</h3>
+                <p><strong style="color:var(--primary)">1. Motivation</strong> - Warum genau dieses Studium? Was treibt dich an?<br><br>
+                <strong style="color:var(--success)">2. Fachliches Interesse</strong> - Zeig, dass du dich bereits mit dem Thema beschaeftigst.<br><br>
+                <strong style="color:var(--secondary)">3. Persoenlichkeit</strong> - Wer bist du? Was macht dich besonders?<br><br>
+                <strong style="color:var(--warning)">4. Reflexion</strong> - Kannst du ueber dich selbst nachdenken und dich weiterentwickeln?</p>
+            </div>
+            <div class="card">
+                <h3>Die STAR-Methode</h3>
+                <p>Fuer Situationsfragen nutze die STAR-Methode:<br><br>
+                <strong style="color:var(--primary)">S</strong>ituation - Beschreibe den Kontext kurz<br>
+                <strong style="color:var(--warning)">T</strong>ask - Was war die Aufgabe/Herausforderung?<br>
+                <strong style="color:var(--success)">A</strong>ction - Was hast DU konkret getan?<br>
+                <strong style="color:var(--secondary)">R</strong>esult - Was war das Ergebnis? Was hast du gelernt?</p>
+            </div>
+            <div class="card">
+                <h3>Haeufige Fehler vermeiden</h3>
+                <p>
+                    <span style="color:var(--secondary)">&#10007;</span> Auswendig gelernte Antworten aufsagen<br>
+                    <span style="color:var(--secondary)">&#10007;</span> Zu allgemein bleiben ("Ich mag Menschen")<br>
+                    <span style="color:var(--secondary)">&#10007;</span> Negativ ueber andere sprechen<br>
+                    <span style="color:var(--secondary)">&#10007;</span> Keine eigenen Fragen stellen<br><br>
+                    <span style="color:var(--success)">&#10003;</span> Konkrete Beispiele aus deinem Leben bringen<br>
+                    <span style="color:var(--success)">&#10003;</span> Ehrlich sein, auch ueber Schwaechen<br>
+                    <span style="color:var(--success)">&#10003;</span> Begeisterung zeigen<br>
+                    <span style="color:var(--success)">&#10003;</span> Am Ende 2-3 eigene Fragen stellen
+                </p>
+            </div>
+        </div>
+
+        <div class="section" id="ueben">
+            <div id="questionArea"></div>
+        </div>
+
+        <div class="section" id="flashcards">
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard" onclick="flipCard()">
+                    <div class="flashcard-face flashcard-front">
+                        <h3 id="fcQuestion"></h3>
+                        <div class="flashcard-hint">Klicken zum Umdrehen</div>
+                    </div>
+                    <div class="flashcard-face flashcard-back">
+                        <p id="fcAnswer"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-group" style="justify-content:center">
+                <button class="btn btn-secondary" onclick="prevCard()">Zurueck</button>
+                <span id="fcCounter" style="padding:12px;color:var(--text-muted)"></span>
+                <button class="btn btn-primary" onclick="nextCard()">Naechste</button>
+            </div>
+        </div>
+
+        <div class="section" id="simulation">
+            <div class="card" style="text-align:center">
+                <h3>Interview-Simulation</h3>
+                <p style="margin-bottom:20px">Simuliere ein echtes Aufnahmegespraech. Du bekommst Fragen nacheinander gestellt und hast jeweils 2 Minuten Zeit.</p>
+                <div class="btn-group" style="justify-content:center">
+                    <button class="btn btn-primary" onclick="startSimulation()">Simulation starten</button>
+                    <button class="btn btn-secondary" onclick="startSimulation('quick')">Kurz (5 Fragen)</button>
+                </div>
+            </div>
+            <div id="simResults"></div>
+        </div>
+
+        <div class="section" id="checkliste">
+            <div class="card">
+                <h3>Vorbereitung am Tag davor</h3>
+                <ul class="checklist" id="checklistBefore">
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Kleidung rauslegen (gepflegt, nicht overdressed)</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Anfahrt planen (+30 Min Puffer)</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Unterlagen zusammenpacken (Einladung, Ausweis, Lebenslauf)</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>2-3 eigene Fragen an die Kommission vorbereiten</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Website der FH Wien nochmal lesen</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Frueh ins Bett gehen</span></li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Am Tag des Interviews</h3>
+                <ul class="checklist" id="checklistDay">
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Fruehstuecken, Wasser mitnehmen</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>10 Minuten vor Termin da sein</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Handy auf lautlos</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>3x tief durchatmen vor der Tuer</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Fester Haendedruck, Blickkontakt, Laecheln</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Langsam und deutlich sprechen</span></li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Inhaltlich vorbereitet</h3>
+                <ul class="checklist" id="checklistContent">
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Motivations-Antwort geuebt</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Staerken und Schwaechen formuliert</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Konkretes Beispiel fuer Teamarbeit parat</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Wissen ueber FH Wien und Studiengang</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>STAR-Methode verstanden und geuebt</span></li>
+                    <li onclick="toggleCheck(this)"><div class="check"></div><span>Mindestens 1x laut vor dem Spiegel geuebt</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Name Modal -->
+<div class="name-modal" id="nameModal">
+    <div class="name-panel">
+        <h2 style="color:var(--primary);margin-bottom:8px">Wer bist du?</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem">Dein Name wird in der Rangliste angezeigt</p>
+        <input class="name-input" id="nameInput" placeholder="Dein Name..." maxlength="20"
+            onkeydown="if(event.key==='Enter')saveName()">
+        <button class="btn btn-primary" onclick="saveName()" style="width:100%">Los geht's!</button>
+    </div>
+</div>
+
+<!-- Simulation Overlay -->
+<div class="sim-overlay" id="simOverlay">
+    <div class="sim-panel">
+        <button class="sim-close" onclick="closeSimulation()">&#10005;</button>
+        <div class="sim-interviewer">
+            <div class="sim-avatar">&#128100;</div>
+            <div>
+                <strong>Interviewer/in</strong>
+                <div style="color:var(--text-muted);font-size:0.85rem">FH Wien Aufnahmekommission</div>
+            </div>
+        </div>
+        <div id="simContent"></div>
+    </div>
+</div>
+
+<script>
+// ======================== DYNAMISCHER FRAGEN-GENERATOR ========================
+// Generiert bei jedem Aufruf NEUE Fragen - unendliche Varianten!
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length-1; i > 0; i--) { const j = rand(0,i); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+function pick(arr, n) { return shuffle(arr).slice(0, n); }
+
+// Erzeugt falsche Antworten nahe an der richtigen
+function nearOptions(correct, count=3, spread=null) {
+    if (!spread) spread = Math.max(3, Math.abs(Math.round(correct * 0.3)));
+    const opts = new Set();
+    while (opts.size < count) {
+        let fake = correct + rand(-spread, spread);
+        if (fake !== correct && fake > 0) opts.add(fake);
+    }
+    return [...opts];
+}
+
+function makeQuestion(text, correctVal, fakes, explanation) {
+    const correct = String(correctVal);
+    const options = shuffle([correct, ...fakes.map(String)]);
+    return { type:'mc', text, options, correct: options.indexOf(correct), explanation };
+}
+
+// ===== LOGIK GENERATOR =====
+function generateLogik() {
+    const generators = [
+        // Multiplikationsreihen: start * factor
+        () => {
+            const factor = pick([2,3,4,5],1)[0];
+            const start = rand(2,6);
+            const seq = [start]; for(let i=1;i<5;i++) seq.push(seq[i-1]*factor);
+            const answer = seq[4]*factor;
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer),
+                `Jede Zahl wird mit ${factor} multipliziert. ${seq[4]} x ${factor} = ${answer}`
+            );
+        },
+        // Additionsreihen mit steigendem Abstand
+        () => {
+            const start = rand(1,10);
+            const inc = rand(1,4);
+            const seq = [start]; let add = inc;
+            for(let i=1;i<6;i++) { seq.push(seq[i-1]+add); add += inc; }
+            const answer = seq[5] + add;
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer),
+                `Die Abstaende steigen um jeweils ${inc}: ${seq.map((v,i)=>i>0?'+'+(v-seq[i-1]):'').filter(Boolean).join(', ')}. Naechster Abstand: +${add}, also ${answer}`
+            );
+        },
+        // Quadratzahlen
+        () => {
+            const start = rand(2,8);
+            const seq = []; for(let i=start;i<start+5;i++) seq.push(i*i);
+            const answer = (start+5)*(start+5);
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer),
+                `Quadratzahlen: ${Array.from({length:5},(_,i)=>`${start+i}²=${(start+i)**2}`).join(', ')}, ${start+5}²=${answer}`
+            );
+        },
+        // Halbieren
+        () => {
+            const power = rand(7,10);
+            const start = Math.pow(2, power);
+            const seq = [start]; for(let i=1;i<5;i++) seq.push(seq[i-1]/2);
+            const answer = seq[4]/2;
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer, 3, Math.max(2, answer)),
+                `Jede Zahl wird halbiert: ${seq[4]} / 2 = ${answer}`
+            );
+        },
+        // Fibonacci-artig
+        () => {
+            const a = rand(1,5), b = rand(1,5);
+            const seq = [a,b]; for(let i=2;i<6;i++) seq.push(seq[i-1]+seq[i-2]);
+            const answer = seq[4]+seq[5];
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer),
+                `Jede Zahl ist die Summe der beiden vorherigen: ${seq[4]} + ${seq[5]} = ${answer}`
+            );
+        },
+        // x2+1 Reihe
+        () => {
+            const start = rand(1,5);
+            const seq = [start]; for(let i=1;i<5;i++) seq.push(seq[i-1]*2+1);
+            const answer = seq[4]*2+1;
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer),
+                `Regel: vorherige Zahl x 2 + 1. ${seq[4]} x 2 + 1 = ${answer}`
+            );
+        },
+        // Wochentag-Logik
+        () => {
+            const tage = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+            const idx = rand(0,6);
+            const uebermorgen = tage[idx];
+            const heute = tage[(idx-2+7)%7];
+            const gestern = tage[(idx-3+7)%7];
+            const fakes = pick(tage.filter(t=>t!==gestern),3);
+            return makeQuestion(
+                `Wenn der Tag nach morgen ${uebermorgen} ist, welcher Tag war gestern?`,
+                gestern, fakes,
+                `Tag nach morgen = ${uebermorgen}, morgen = ${tage[(idx-1+7)%7]}, heute = ${heute}, gestern = ${gestern}`
+            );
+        },
+        // Reihenfolge-Raetsel
+        () => {
+            const namen = shuffle(['Anna','Bernd','Carla','Daniel','Eva','Felix','Greta','Hans']);
+            const vier = namen.slice(0,4);
+            const reihe = shuffle(vier);
+            const frage = `${reihe[0]} steht vor ${reihe[1]}, ${reihe[2]} steht hinter ${reihe[1]}, und ${reihe[3]} steht vor ${reihe[0]}. Wer steht an letzter Stelle?`;
+            // Reihenfolge: reihe[3], reihe[0], reihe[1], reihe[2]
+            return makeQuestion(frage, reihe[2], [reihe[0],reihe[1],reihe[3]],
+                `Reihenfolge: ${reihe[3]}, ${reihe[0]}, ${reihe[1]}, ${reihe[2]}. ${reihe[2]} steht zuletzt.`
+            );
+        },
+        // Maschinen-Raetsel
+        () => {
+            const m = pick([3,5,7,10,8,6],1)[0];
+            const t = pick([3,5,7,10,4,6],1)[0];
+            const big = rand(50,200);
+            return makeQuestion(
+                `${m} Maschinen brauchen ${t} Minuten fuer ${m} Teile. Wie lange brauchen ${big} Maschinen fuer ${big} Teile?`,
+                `${t} Minuten`, [`${big} Minuten`,`${t*m} Minuten`,`${Math.round(big/m)} Minuten`],
+                `Jede Maschine macht 1 Teil in ${t} Min. ${big} Maschinen machen ${big} Teile parallel in ${t} Min.`
+            );
+        },
+        // Schafe-Raetsel
+        () => {
+            const total = rand(15,50);
+            const alive = rand(5,total-3);
+            return makeQuestion(
+                `Ein Bauer hat ${total} Schafe. Alle ausser ${alive} sterben. Wie viele hat er noch?`,
+                alive, nearOptions(alive, 3, 5),
+                `"Alle ausser ${alive}" bedeutet ${alive} ueberleben.`
+            );
+        },
+        // Kubikzahlen
+        () => {
+            const start = rand(1,4);
+            const seq = []; for(let i=start;i<start+4;i++) seq.push(i*i*i);
+            const answer = (start+4)**3;
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer),
+                `Kubikzahlen: ${Array.from({length:4},(_,i)=>`${start+i}³=${(start+i)**3}`).join(', ')}, ${start+4}³=${answer}`
+            );
+        },
+        // Dreieckszahlen
+        () => {
+            const offset = rand(0,3);
+            const seq = []; let sum = 0;
+            for(let i=1+offset;i<7+offset;i++) { sum += i; seq.push(sum); }
+            const answer = sum + 7 + offset;
+            return makeQuestion(
+                `Welche Zahl setzt die Reihe fort? ${seq.join(', ')}, ...`,
+                answer, nearOptions(answer),
+                `Die Abstaende steigen: ${seq.map((v,i)=>i>0?'+'+(v-seq[i-1]):'').filter(Boolean).join(', ')}, naechster: +${7+offset} = ${answer}`
+            );
+        },
+    ];
+    return generators[rand(0, generators.length-1)]();
+}
+
+// ===== MATHE GENERATOR =====
+function generateMathe() {
+    const generators = [
+        // Prozent von X
+        () => {
+            const pct = pick([5,10,12,15,20,25,30,35,40],1)[0];
+            const base = pick([80,120,150,180,200,240,300,360,400,500],1)[0];
+            const answer = base * pct / 100;
+            return makeQuestion(`Was ist ${pct}% von ${base}?`, answer, nearOptions(answer), `${base} x ${pct/100} = ${answer}`);
+        },
+        // Rabatt Originalpreis
+        () => {
+            const rabatt = pick([10,15,20,25,30],1)[0];
+            const orig = pick([40,50,60,70,80,90,100,120],1)[0];
+            const reduziert = orig * (100-rabatt)/100;
+            return makeQuestion(
+                `Ein Produkt kostet nach ${rabatt}% Rabatt ${reduziert} Euro. Was war der Originalpreis?`,
+                orig, nearOptions(orig, 3, 15),
+                `Originalpreis x ${(100-rabatt)/100} = ${reduziert}. Originalpreis = ${reduziert} / ${(100-rabatt)/100} = ${orig} Euro`
+            );
+        },
+        // Geschwindigkeit
+        () => {
+            const speed = pick([60,70,80,90,100,110,120],1)[0];
+            const hours = pick([1.5,2,2.5,3,3.5,4],1)[0];
+            const dist = speed * hours;
+            return makeQuestion(
+                `Ein Zug faehrt ${dist} km in ${hours} Stunden. Wie schnell ist er?`,
+                `${speed} km/h`, [`${speed-20} km/h`,`${speed+10} km/h`,`${speed+30} km/h`],
+                `${dist} / ${hours} = ${speed} km/h`
+            );
+        },
+        // Gleichung loesen
+        () => {
+            const x = rand(3,15);
+            const a = rand(2,5);
+            const b = rand(1,10);
+            const c = rand(1,10);
+            const result = a*x + c;
+            const answer = result;
+            return makeQuestion(
+                `Wenn x = ${x}, was ist ${a}x + ${c}?`,
+                answer, nearOptions(answer),
+                `${a} x ${x} + ${c} = ${a*x} + ${c} = ${answer}`
+            );
+        },
+        // Prozent berechnen
+        () => {
+            const teil = pick([12,15,18,20,24,25,30,36,40,45,50],1)[0];
+            const ganzes = teil * pick([2,3,4,5],1)[0];
+            const pct = Math.round(teil/ganzes*100);
+            return makeQuestion(
+                `Wie viel Prozent sind ${teil} von ${ganzes}?`,
+                `${pct}%`, [`${pct-5}%`,`${pct+5}%`,`${pct+10}%`],
+                `${teil}/${ganzes} = ${(teil/ganzes).toFixed(2)} = ${pct}%`
+            );
+        },
+        // Durchschnitt
+        () => {
+            const count = rand(4,6);
+            const nums = Array.from({length:count}, ()=>rand(10,50));
+            const sum = nums.reduce((a,b)=>a+b,0);
+            // Sicherstellen dass Durchschnitt glatt ist
+            const remainder = sum % count;
+            if(remainder !== 0) nums[0] += (count - remainder);
+            const newSum = nums.reduce((a,b)=>a+b,0);
+            const avg = newSum / count;
+            return makeQuestion(
+                `Was ist der Durchschnitt von ${nums.join(', ')}?`,
+                avg, nearOptions(avg, 3, 5),
+                `(${nums.join('+')}) / ${count} = ${newSum} / ${count} = ${avg}`
+            );
+        },
+        // Quersumme
+        () => {
+            const num = rand(1000, 9999);
+            const digits = String(num).split('').map(Number);
+            const answer = digits.reduce((a,b)=>a+b,0);
+            return makeQuestion(
+                `Was ist die Quersumme von ${num.toLocaleString('de-DE')}?`,
+                answer, nearOptions(answer, 3, 4),
+                `${digits.join(' + ')} = ${answer}`
+            );
+        },
+        // Dreieck Winkel
+        () => {
+            const a = rand(25,75);
+            const b = rand(25, 150-a);
+            const c = 180 - a - b;
+            return makeQuestion(
+                `Ein Dreieck hat Winkel von ${a}° und ${b}°. Wie gross ist der dritte Winkel?`,
+                `${c}°`, [`${c-10}°`,`${c+5}°`,`${c+15}°`],
+                `Winkelsumme = 180°. 180 - ${a} - ${b} = ${c}°`
+            );
+        },
+        // Rechteck Umfang
+        () => {
+            const l = rand(5,20);
+            const b = rand(3,l-1);
+            const u = 2*(l+b);
+            return makeQuestion(
+                `Ein Rechteck hat Umfang ${u} cm und Laenge ${l} cm. Wie breit ist es?`,
+                `${b} cm`, [`${b+2} cm`,`${b-1} cm`,`${b+4} cm`],
+                `Umfang = 2(l+b). ${u} = 2(${l}+b). ${u/2} = ${l}+b. b = ${b} cm`
+            );
+        },
+        // Potenzen
+        () => {
+            const base = pick([2,3,4,5],1)[0];
+            const exp = rand(3,base===2?10:6);
+            const answer = Math.pow(base, exp);
+            return makeQuestion(
+                `${base}^${exp} = ?`,
+                answer, nearOptions(answer, 3, Math.round(answer*0.2)),
+                `${base}^${exp} = ${answer}`
+            );
+        },
+        // Textaufgabe Verhaeltnis
+        () => {
+            const factor = rand(2,4);
+            const name1 = pick(['Peter','Anna','Maria','Tom','Lisa','Max'],1)[0];
+            const name2 = pick(['Sara','Bernd','Julia','Nico','Eva','Lena'].filter(n=>n!==name1),1)[0];
+            const total = rand(3,10) * (factor+1);
+            const less = total / (factor+1);
+            const more = less * factor;
+            return makeQuestion(
+                `${name1} hat ${factor}x so viel Geld wie ${name2}. Zusammen haben sie ${total} Euro. Wie viel hat ${name1}?`,
+                more, nearOptions(more, 3, 10),
+                `${name2} = x, ${name1} = ${factor}x. x + ${factor}x = ${total}. ${factor+1}x = ${total}. x = ${less}. ${name1} = ${more} Euro.`
+            );
+        },
+        // Bruchrechnung
+        () => {
+            const pairs = [[1,2,1,3],[1,3,1,4],[2,3,1,4],[3,4,1,6],[1,2,2,5],[2,5,1,3],[3,8,1,4],[1,6,1,3]];
+            const [a,b,c,d] = pick(pairs,1)[0];
+            const lcm = (b*d) / gcd(b,d);
+            const num = a*(lcm/b) + c*(lcm/d);
+            const g = gcd(num, lcm);
+            return makeQuestion(
+                `Wie viel ist ${a}/${b} + ${c}/${d}?`,
+                `${num/g}/${lcm/g}`, [`${num/g+1}/${lcm/g}`,`${a+c}/${b+d}`,`${Math.abs(num/g-1)}/${lcm/g}`],
+                `${a}/${b} + ${c}/${d} = ${a*(lcm/b)}/${lcm} + ${c*(lcm/d)}/${lcm} = ${num}/${lcm}` + (g>1?` = ${num/g}/${lcm/g}`:'')
+            );
+        },
+        // Kreisumfang
+        () => {
+            const r = pick([3,4,5,6,7,8,9,10],1)[0];
+            const answer = Math.round(2 * Math.PI * r);
+            return makeQuestion(
+                `Ein Kreis hat Radius ${r} cm. Wie gross ist der Umfang (gerundet)?`,
+                `${answer} cm`, [`${answer-6} cm`,`${answer+4} cm`,`${answer+8} cm`],
+                `Umfang = 2 x pi x ${r} ≈ ${(2*Math.PI*r).toFixed(1)} ≈ ${answer} cm`
+            );
+        },
+    ];
+    return generators[rand(0, generators.length-1)]();
+}
+function gcd(a,b) { a=Math.abs(a); b=Math.abs(b); while(b){[a,b]=[b,a%b];} return a; }
+
+// ===== WORTVERSTAENDNIS: Grosse Datenbank + Zufallsauswahl =====
+const wortPool = [
+    { text:'Gemuese : Karotte = Obst : ?', opts:['Apfel','Wasser','Gurke','Suppe'], c:0, exp:'Karotte ist ein Gemuese. Apfel ist ein Obst.' },
+    { text:'Arzt : Patient = Lehrer : ?', opts:['Schule','Schueler','Buch','Wissen'], c:1, exp:'Arzt behandelt Patienten, Lehrer unterrichtet Schueler.' },
+    { text:'Vogel : Nest = Mensch : ?', opts:['Stadt','Bett','Haus','Familie'], c:2, exp:'Vogel lebt im Nest, Mensch im Haus.' },
+    { text:'Auge : sehen = Ohr : ?', opts:['Mund','hoeren','Nase','sprechen'], c:1, exp:'Auge zum Sehen, Ohr zum Hoeren.' },
+    { text:'Buch : lesen = Lied : ?', opts:['schreiben','singen','tanzen','spielen'], c:1, exp:'Buch wird gelesen, Lied wird gesungen.' },
+    { text:'Fisch : Schwarm = Wolf : ?', opts:['Herde','Rudel','Gruppe','Meute'], c:1, exp:'Fische = Schwarm, Woelfe = Rudel.' },
+    { text:'Heiss : kalt = hell : ?', opts:['warm','Licht','dunkel','Sonne'], c:2, exp:'Gegensatzpaare: heiss/kalt, hell/dunkel.' },
+    { text:'Schiff : Hafen = Flugzeug : ?', opts:['Himmel','Landebahn','Flughafen','Pilot'], c:2, exp:'Schiff legt im Hafen an, Flugzeug am Flughafen.' },
+    { text:'Wasser : fluessig = Eis : ?', opts:['kalt','fest','weiss','Schnee'], c:1, exp:'Aggregatzustaende: Wasser=fluessig, Eis=fest.' },
+    { text:'Kuenstler : Gemaelde = Komponist : ?', opts:['Klavier','Symphonie','Konzert','Noten'], c:1, exp:'Kuenstler schafft Gemaelde, Komponist Symphonien.' },
+    { text:'Finger : Hand = Zeh : ?', opts:['Bein','Fuss','Schuh','Knie'], c:1, exp:'Finger an der Hand, Zehen am Fuss.' },
+    { text:'Milch : Kuh = Wolle : ?', opts:['Pullover','Schaf','warm','Stoff'], c:1, exp:'Milch von Kuh, Wolle vom Schaf.' },
+    { text:'Kapitaen : Schiff = Pilot : ?', opts:['Himmel','Flugzeug','Reise','Steward'], c:1, exp:'Kapitaen fuehrt Schiff, Pilot Flugzeug.' },
+    { text:'Stunde : Tag = Tag : ?', opts:['Nacht','Monat','Woche','Jahr'], c:2, exp:'Stunden bilden Tag, Tage bilden Woche.' },
+    { text:'Autor : Roman = Regisseur : ?', opts:['Theater','Film','Buehne','Kamera'], c:1, exp:'Autor schafft Roman, Regisseur schafft Film.' },
+    { text:'Lunge : atmen = Herz : ?', opts:['schlagen','pumpen','Blut','leben'], c:1, exp:'Lunge zum Atmen, Herz zum Pumpen.' },
+    { text:'Schluessel : Schloss = Passwort : ?', opts:['Computer','Account','E-Mail','Hacker'], c:1, exp:'Schluessel oeffnet Schloss, Passwort oeffnet Account.' },
+    { text:'Mehl : Brot = Trauben : ?', opts:['Saft','Wein','Marmelade','Obst'], c:1, exp:'Aus Mehl wird Brot, aus Trauben wird Wein.' },
+    { text:'Erde : Pflanze = Wasser : ?', opts:['Regen','Fisch','Meer','trinken'], c:1, exp:'Pflanze lebt in Erde, Fisch im Wasser.' },
+    { text:'Schwert : Ritter = Skalpell : ?', opts:['Krankenhaus','Chirurg','Patient','Operation'], c:1, exp:'Ritter nutzt Schwert, Chirurg nutzt Skalpell.' },
+    { text:'Nacht : Mond = Tag : ?', opts:['Wolken','Sonne','hell','warm'], c:1, exp:'Nachts scheint der Mond, tags die Sonne.' },
+    { text:'Woerter : Satz = Noten : ?', opts:['Musik','Melodie','Klavier','Konzert'], c:1, exp:'Woerter bilden Satz, Noten bilden Melodie.' },
+    { text:'Ei : Huhn = Samen : ?', opts:['Erde','Pflanze','Baum','Wasser'], c:1, exp:'Aus Ei wird Huhn, aus Samen wird Pflanze.' },
+    { text:'Hunger : essen = Durst : ?', opts:['Wasser','trinken','kochen','Glas'], c:1, exp:'Hunger stillt man durch Essen, Durst durch Trinken.' },
+    { text:'Benzin : Auto = Strom : ?', opts:['Kabel','E-Auto','Batterie','Licht'], c:1, exp:'Benzin treibt Auto an, Strom das E-Auto.' },
+    // Ausreisser-Fragen
+    { text:'Welches Wort passt nicht? Traurig, wuetend, froehlich, blau, aengstlich', opts:['Traurig','Froehlich','Blau','Aengstlich'], c:2, exp:'Blau ist eine Farbe, die anderen sind Gefuehle.' },
+    { text:'Welches Wort passt nicht? Hammer, Zange, Schere, Nagel, Saege', opts:['Hammer','Schere','Nagel','Saege'], c:2, exp:'Nagel ist kein Werkzeug.' },
+    { text:'Welches Wort passt nicht? Rose, Tulpe, Birke, Lilie, Nelke', opts:['Rose','Tulpe','Birke','Lilie'], c:2, exp:'Birke ist ein Baum, die anderen Blumen.' },
+    { text:'Welches Wort passt nicht? Sekunde, Minute, Meter, Stunde, Tag', opts:['Sekunde','Minute','Meter','Tag'], c:2, exp:'Meter ist Laengeneinheit, Rest Zeiteinheiten.' },
+    { text:'Welches Wort passt nicht? Klavier, Geige, Trommel, Mikrofon, Floete', opts:['Klavier','Trommel','Mikrofon','Floete'], c:2, exp:'Mikrofon ist kein Instrument.' },
+    { text:'Welches Wort passt nicht? Berlin, Wien, Paris, Europa, London', opts:['Wien','Paris','Europa','London'], c:2, exp:'Europa ist ein Kontinent, die anderen Staedte.' },
+    { text:'Welches Wort passt nicht? Adler, Spatz, Pinguin, Fledermaus, Amsel', opts:['Adler','Pinguin','Fledermaus','Amsel'], c:2, exp:'Fledermaus ist ein Saeugetier, die anderen Voegel.' },
+    { text:'Welches Wort passt nicht? Apfel, Birne, Tomate, Kirsche, Pfirsich', opts:['Apfel','Birne','Tomate','Kirsche'], c:2, exp:'Tomate ist ein Gemuese, die anderen Obst.' },
+    { text:'Welches Wort passt nicht? Sofa, Sessel, Stuhl, Teppich, Hocker', opts:['Sofa','Stuhl','Teppich','Hocker'], c:2, exp:'Teppich ist kein Sitzmoebel.' },
+    { text:'Welches Wort passt nicht? Gold, Silber, Bronze, Diamant, Kupfer', opts:['Gold','Bronze','Diamant','Kupfer'], c:2, exp:'Diamant ist kein Metall.' },
+    { text:'Welches Wort passt nicht? Hund, Katze, Hamster, Forelle, Kaninchen', opts:['Hund','Hamster','Forelle','Kaninchen'], c:2, exp:'Forelle ist ein Fisch, die anderen Haustiere/Saeugetiere.' },
+    { text:'Welches Wort passt nicht? Schere, Messer, Loeffel, Saege, Axt', opts:['Schere','Messer','Loeffel','Axt'], c:2, exp:'Loeffel schneidet nicht.' },
+    { text:'Welches Wort passt nicht? Mars, Venus, Sonne, Jupiter, Saturn', opts:['Mars','Venus','Sonne','Jupiter'], c:2, exp:'Sonne ist ein Stern, die anderen Planeten.' },
+    { text:'Welches Wort passt nicht? Weizen, Mais, Reis, Kartoffel, Hafer', opts:['Weizen','Mais','Kartoffel','Hafer'], c:2, exp:'Kartoffel ist kein Getreide.' },
+    { text:'Welches Wort passt nicht? Tango, Walzer, Salsa, Oper, Samba', opts:['Tango','Walzer','Oper','Samba'], c:2, exp:'Oper ist kein Tanz.' },
+];
+
+function generateWort() {
+    const q = wortPool[rand(0, wortPool.length-1)];
+    return { type:'mc', text:q.text, options:q.opts, correct:q.c, explanation:q.exp };
+}
+
+// ===== ENGLISCH GRAMMATIK: Grosse Datenbank =====
+const grammarPool = [
+    { text:'"According to the law, an employee\'s salary _______ on a monthly basis."', opts:['is paid','is being paid','is payed','is being payed'], c:0, exp:'Simple present passive: "is paid". "Payed" existiert nicht.' },
+    { text:'"She _______ in London for five years before moving to Vienna."', opts:['has lived','had lived','was living','lived'], c:1, exp:'Past Perfect: Handlung VOR dem Umzug abgeschlossen.' },
+    { text:'"If I _______ more time, I would learn another language."', opts:['have','had','would have','has'], c:1, exp:'Second Conditional: If + Past Simple.' },
+    { text:'"The report must _______ by Friday."', opts:['finish','be finished','be finishing','finished'], c:1, exp:'Passive mit Modal: must + be + Past Participle.' },
+    { text:'"Neither the students nor the teacher _______ aware of the change."', opts:['were','was','are','is being'], c:1, exp:'Neither...nor: Verb richtet sich nach dem naechsten Subjekt.' },
+    { text:'"He suggested that she _______ the meeting."', opts:['attends','attend','attending','would attend'], c:1, exp:'Subjunctive nach "suggest": Grundform.' },
+    { text:'"By this time next year, I _______ my degree."', opts:['will finish','will have finished','am finishing','have finished'], c:1, exp:'Future Perfect: By + Zeitpunkt.' },
+    { text:'"The number of applicants _______ significantly."', opts:['have increased','has increased','are increasing','increase'], c:1, exp:'"The number of" = Singular.' },
+    { text:'"She is used to _______ early."', opts:['wake up','waking up','woke up','be waking up'], c:1, exp:'"Be used to" + Gerund.' },
+    { text:'"I wish I _______ at the party last night."', opts:['was','were','had been','would be'], c:2, exp:'Wish + Past Perfect fuer Vergangenheit.' },
+    { text:'"_______ having studied hard, she failed."', opts:['Despite','Although','Because','However'], c:0, exp:'"Despite" + Gerund.' },
+    { text:'"The children were made _______ their homework."', opts:['do','to do','doing','done'], c:1, exp:'Passive von "make": be made + to + Inf.' },
+    { text:'"Not only _______ the exam, but she got the highest score."', opts:['she passed','did she pass','she did pass','has she passed'], c:1, exp:'Inversion nach "Not only".' },
+    { text:'"He _______ to the gym three times a week."', opts:['is going','goes','go','has gone'], c:1, exp:'Gewohnheit = Simple Present.' },
+    { text:'"There is hardly _______ milk left."', opts:['some','any','no','few'], c:1, exp:'"Hardly any" - hardly ist bereits negativ.' },
+    { text:'"She asked me where I _______."', opts:['live','lived','do live','am living'], c:1, exp:'Reported Speech: Present -> Past.' },
+    { text:'"_______ you mind opening the window?"', opts:['Do','Would','Could','Should'], c:1, exp:'"Would you mind" = hoefliche Form.' },
+    { text:'"This is the restaurant _______ we had dinner."', opts:['which','where','that','whose'], c:1, exp:'"Where" fuer Orte.' },
+    { text:'"He speaks English as _______ as his teacher."', opts:['good','well','better','best'], c:1, exp:'"Speak" braucht Adverb: "well".' },
+    { text:'"The movie was so boring that we left _______ it ended."', opts:['after','until','before','while'], c:2, exp:'Film langweilig = VOR dem Ende gegangen.' },
+    // Erweitert
+    { text:'"She _______ working here since 2019."', opts:['is','was','has been','had been'], c:2, exp:'Present Perfect Continuous mit "since".' },
+    { text:'"I\'d rather you _______ smoking."', opts:['stop','stopped','would stop','stopping'], c:1, exp:'"Would rather + person" = Past Simple.' },
+    { text:'"It\'s high time we _______ home."', opts:['go','went','going','have gone'], c:1, exp:'"It\'s high time" + Past Simple.' },
+    { text:'"Hardly _______ I arrived when it started raining."', opts:['have','had','did','was'], c:1, exp:'Inversion: "Hardly had I..." = Past Perfect.' },
+    { text:'"She denied _______ the money."', opts:['to steal','stealing','steal','stolen'], c:1, exp:'"Deny" + Gerund.' },
+    { text:'"He is looking forward to _______ you."', opts:['see','seeing','seen','saw'], c:1, exp:'"Look forward to" + Gerund.' },
+    { text:'"The exam was _______ difficult than I expected."', opts:['more','most','much','many'], c:0, exp:'Comparative: "more difficult than".' },
+    { text:'"I\'ll call you as soon as I _______."', opts:['arrive','will arrive','arrived','arriving'], c:0, exp:'Present Simple nach "as soon as" (Zukunft).' },
+    { text:'"She can\'t _______ stolen the documents - she was with me."', opts:['have','be','had','has'], c:0, exp:'"Can\'t have + PP" = unmoegliche Vergangenheit.' },
+    { text:'"_______ I were you, I would apply immediately."', opts:['If','When','Unless','Should'], c:0, exp:'Second Conditional: "If I were you..."' },
+    { text:'"The house _______ built in 1920."', opts:['is','was','has','had'], c:1, exp:'Passive Past Simple: "was built".' },
+    { text:'"They have _______ finished the project."', opts:['yet','already','still','ever'], c:1, exp:'"Have already finished" = completed.' },
+    { text:'"She insisted _______ paying for dinner."', opts:['in','on','at','for'], c:1, exp:'"Insist on + Gerund".' },
+    { text:'"We need to get the car _______."', opts:['repair','repaired','repairing','to repair'], c:1, exp:'"Get something done" = Causative.' },
+    { text:'"_______ of the students passed the exam."', opts:['All','Every','Each','Whole'], c:0, exp:'"All of the students" (Plural).' },
+    { text:'"She speaks _______ English and French fluently."', opts:['both','either','neither','all'], c:0, exp:'"Both X and Y" fuer zwei Dinge.' },
+    { text:'"He apologized _______ being late."', opts:['about','for','of','to'], c:1, exp:'"Apologize for + Gerund".' },
+    { text:'"The more you practice, the _______ you get."', opts:['good','better','best','well'], c:1, exp:'"The more... the better" Comparative.' },
+    { text:'"I\'m not used to _______ up so early."', opts:['get','getting','got','gets'], c:1, exp:'"Be used to" + Gerund.' },
+    { text:'"She seems _______ a nice person."', opts:['being','to be','be','been'], c:1, exp:'"Seem + to be".' },
+];
+
+function generateGrammar() {
+    const q = grammarPool[rand(0, grammarPool.length-1)];
+    return { type:'mc', text:q.text, options:q.opts, correct:q.c, explanation:q.exp };
+}
+
+// ===== ENGLISCH VOKABULAR: Grosse Datenbank =====
+const vocabPool = [
+    { word:'substantially', meaning:'considerably', wrong:['slightly','completely','apparently'], exp:'"Substantially" = erheblich = "considerably".' },
+    { word:'outstanding', meaning:'exceptional', wrong:['average','acceptable','normal'], exp:'"Outstanding" = herausragend.' },
+    { word:'terminate', meaning:'end', wrong:['extend','negotiate','review'], exp:'"Terminate" = beenden.' },
+    { word:'ambiguous', meaning:'unclear', wrong:['obvious','impressive','unexpected'], exp:'"Ambiguous" = mehrdeutig.' },
+    { word:'concise', meaning:'brief and clear', wrong:['long and detailed','boring','complicated'], exp:'"Concise" = kurz und praegnant.' },
+    { word:'enhance', meaning:'improve', wrong:['reduce','maintain','monitor'], exp:'"Enhance" = verbessern.' },
+    { word:'condescending', meaning:'patronizing', wrong:['friendly','humble','aggressive'], exp:'"Condescending" = herablassend.' },
+    { word:'imminent', meaning:'approaching soon', wrong:['far away','cancelled','flexible'], exp:'"Imminent" = bevorstehend.' },
+    { word:'reluctant', meaning:'unwilling', wrong:['eager','happy','quick'], exp:'"Reluctant" = zoegerlich.' },
+    { word:'compelling', meaning:'convincing', wrong:['weak','confusing','irrelevant'], exp:'"Compelling" = ueberzeugend.' },
+    { word:'feasible', meaning:'achievable', wrong:['impossible','expensive','risky'], exp:'"Feasible" = machbar.' },
+    { word:'perseverance', meaning:'persistence', wrong:['talent','intelligence','creativity'], exp:'"Perseverance" = Ausdauer.' },
+    { word:'obsolete', meaning:'outdated', wrong:['useful','current','valuable'], exp:'"Obsolete" = veraltet.' },
+    { word:'mitigate', meaning:'lessen', wrong:['increase','ignore','cause'], exp:'"Mitigate" = abmildern.' },
+    { word:'postpone', meaning:'delay', wrong:['cancel','confirm','organize'], exp:'"Postpone" = verschieben.' },
+    { word:'mundane', meaning:'ordinary', wrong:['exciting','difficult','creative'], exp:'"Mundane" = alltaeglich.' },
+    { word:'vague', meaning:'unclear', wrong:['precise','detailed','simple'], exp:'"Vague" = vage.' },
+    { word:'pragmatic', meaning:'practical', wrong:['theoretical','idealistic','emotional'], exp:'"Pragmatic" = praktisch.' },
+    { word:'detrimental', meaning:'harmful', wrong:['beneficial','neutral','minor'], exp:'"Detrimental" = schaedlich.' },
+    { word:'eloquent', meaning:'articulate', wrong:['short','boring','quiet'], exp:'"Eloquent" = redegewandt.' },
+    { word:'benevolent', meaning:'kind and generous', wrong:['strict','hostile','indifferent'], exp:'"Benevolent" = wohlwollend.' },
+    { word:'diligent', meaning:'hardworking', wrong:['lazy','careless','slow'], exp:'"Diligent" = fleissig.' },
+    { word:'lucrative', meaning:'profitable', wrong:['expensive','risky','boring'], exp:'"Lucrative" = eintraeglich.' },
+    { word:'meticulous', meaning:'very careful', wrong:['careless','quick','creative'], exp:'"Meticulous" = aeusserst sorgfaeltig.' },
+    { word:'notorious', meaning:'famous for bad things', wrong:['admired','unknown','respected'], exp:'"Notorious" = beruechtigt.' },
+    { word:'plausible', meaning:'believable', wrong:['impossible','proven','ridiculous'], exp:'"Plausible" = plausibel, glaubwuerdig.' },
+    { word:'redundant', meaning:'unnecessary', wrong:['essential','unique','important'], exp:'"Redundant" = ueberfluessig.' },
+    { word:'scrutinize', meaning:'examine closely', wrong:['ignore','approve','summarize'], exp:'"Scrutinize" = genau pruefen.' },
+    { word:'tentative', meaning:'uncertain', wrong:['definite','confident','permanent'], exp:'"Tentative" = vorlaeufig, unsicher.' },
+    { word:'versatile', meaning:'adaptable', wrong:['rigid','limited','specialized'], exp:'"Versatile" = vielseitig.' },
+    { word:'frugal', meaning:'economical', wrong:['wasteful','generous','wealthy'], exp:'"Frugal" = sparsam.' },
+    { word:'inevitable', meaning:'unavoidable', wrong:['preventable','unlikely','optional'], exp:'"Inevitable" = unvermeidlich.' },
+    { word:'prevalent', meaning:'widespread', wrong:['rare','minor','declining'], exp:'"Prevalent" = weit verbreitet.' },
+    { word:'resilient', meaning:'able to recover', wrong:['fragile','permanent','rigid'], exp:'"Resilient" = widerstandsfaehig.' },
+    { word:'subtle', meaning:'not obvious', wrong:['bold','clear','loud'], exp:'"Subtle" = subtil, fein.' },
+    { word:'superfluous', meaning:'more than needed', wrong:['essential','lacking','adequate'], exp:'"Superfluous" = ueberfluessig.' },
+    { word:'tedious', meaning:'boring and repetitive', wrong:['exciting','brief','enjoyable'], exp:'"Tedious" = langweilig, muehsam.' },
+    { word:'vindictive', meaning:'seeking revenge', wrong:['forgiving','generous','peaceful'], exp:'"Vindictive" = rachsuechtig.' },
+    { word:'arbitrary', meaning:'random', wrong:['logical','planned','fair'], exp:'"Arbitrary" = willkuerlich.' },
+    { word:'coherent', meaning:'logical and clear', wrong:['confusing','random','incomplete'], exp:'"Coherent" = zusammenhaengend, klar.' },
+];
+
+const vocabSentences = [
+    'The project results were described as {word} by all reviewers.',
+    'Her approach to the problem was remarkably {word}.',
+    'The CEO\'s decision seemed {word} to most employees.',
+    'Many considered the new regulation to be {word}.',
+    'The evidence presented was {word} enough to convince the jury.',
+    'His behavior during the meeting was seen as {word}.',
+];
+
+function generateVocab() {
+    const q = vocabPool[rand(0, vocabPool.length-1)];
+    const options = shuffle([q.meaning, ...q.wrong]);
+    const sentence = vocabSentences[rand(0, vocabSentences.length-1)].replace('{word}', q.word);
+    return {
+        type:'mc',
+        text: `"${sentence}" - What does "${q.word}" mean?`,
+        options,
+        correct: options.indexOf(q.meaning),
+        explanation: q.exp
+    };
+}
+
+// ===== MASTER GENERATOR: Erzeugt N neue Fragen pro Kategorie =====
+function generateQuestions(cat, count) {
+    const qs = [];
+    const generators = { logik: generateLogik, muster: generateMuster, mathe: generateMathe, wort: generateWort, grammar: generateGrammar, vocab: generateVocab };
+    const gen = generators[cat];
+    const seen = new Set();
+    let attempts = 0;
+    while (qs.length < count && attempts < count * 3) {
+        const q = gen();
+        if (!seen.has(q.text)) { seen.add(q.text); qs.push(q); }
+        attempts++;
+    }
+    return qs;
+}
+
+// Aktive Fragen pro Kategorie (werden bei "Neue Fragen" neu generiert)
+const QUESTIONS_PER_CAT = 20;
+let testQuestions = {};
+function refreshQuestions(cat) {
+    testQuestions[cat] = generateQuestions(cat, QUESTIONS_PER_CAT);
+    catIndex[cat] = 0;
+    catAnswered[cat] = {};
+}
+function refreshAllQuestions() {
+    ['logik','muster','mathe','wort','grammar','vocab'].forEach(c => refreshQuestions(c));
+}
+
+// ===== MUSTER (VISUAL PATTERN) GENERATOR =====
+// Generates SVG-based pattern recognition questions like the FH Wien test
+function generateMuster() {
+    const generators = [
+        genShapeRotation,
+        genShapeProgression,
+        genFillPattern,
+        genCountPattern,
+        genLinePattern,
+    ];
+    return generators[rand(0, generators.length-1)]();
+}
+
+function svgWrap(inner, size=60) {
+    return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+}
+
+// Pattern 1: Shape rotates in each cell
+function genShapeRotation() {
+    const rotations = [0,45,90,135,180,225,270,315];
+    const baseRot = rand(0,3) * 45;
+    const step = pick([45,90],1)[0];
+    const grid = [];
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++) {
+        grid.push(baseRot + (r*3+c)*step);
+    }
+    const correctRot = grid[8];
+    const missingIdx = 8;
+    const shapes = [
+        (rot) => `<g transform="rotate(${rot},30,30)"><line x1="30" y1="10" x2="30" y2="50" stroke="black" stroke-width="3"/><circle cx="30" cy="10" r="5" fill="black"/></g>`,
+        (rot) => `<g transform="rotate(${rot},30,30)"><line x1="15" y1="30" x2="45" y2="30" stroke="black" stroke-width="3"/><polygon points="45,25 55,30 45,35" fill="black"/></g>`,
+        (rot) => `<g transform="rotate(${rot},30,30)"><line x1="30" y1="10" x2="30" y2="50" stroke="black" stroke-width="3"/><line x1="20" y1="10" x2="40" y2="10" stroke="black" stroke-width="3"/></g>`,
+    ];
+    const shapeFunc = shapes[rand(0, shapes.length-1)];
+
+    const gridSvgs = grid.slice(0,8).map(rot => svgWrap(shapeFunc(rot)));
+    // Generate wrong answers: other rotations
+    const wrongRots = shuffle(rotations.filter(r => r !== (correctRot % 360))).slice(0,3);
+    const choices = shuffle([
+        { svg: svgWrap(shapeFunc(correctRot)), correct: true },
+        ...wrongRots.map(r => ({ svg: svgWrap(shapeFunc(r)), correct: false }))
+    ]);
+
+    return {
+        type: 'pattern',
+        text: 'Welches Bild vervollstaendigt das Muster?',
+        gridSvgs,
+        choices,
+        correctIdx: choices.findIndex(c => c.correct),
+        explanation: `Das Symbol dreht sich um jeweils ${step}° pro Feld.`
+    };
+}
+
+// Pattern 2: Shape changes progressively (circle -> triangle -> square)
+function genShapeProgression() {
+    const shapes = [
+        { name:'Kreis', svg:'<circle cx="30" cy="30" r="18" stroke="black" stroke-width="2.5" fill="none"/>' },
+        { name:'Dreieck', svg:'<polygon points="30,12 48,48 12,48" stroke="black" stroke-width="2.5" fill="none"/>' },
+        { name:'Quadrat', svg:'<rect x="12" y="12" width="36" height="36" stroke="black" stroke-width="2.5" fill="none"/>' },
+    ];
+    const fills = ['none','black','#999'];
+    const fillNames = ['leer','voll','grau'];
+
+    // Each row uses a different shape, each column a different fill
+    const rowOrder = shuffle([0,1,2]);
+    const colOrder = shuffle([0,1,2]);
+    const grid = [];
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++) {
+        const s = shapes[rowOrder[r]];
+        const f = fills[colOrder[c]];
+        grid.push(s.svg.replace('fill="none"', `fill="${f}"`));
+    }
+
+    const correctSvg = grid[8];
+    const gridSvgs = grid.slice(0,8).map(s => svgWrap(s));
+
+    // Wrong: different shape or fill combos
+    const wrongOptions = [];
+    for(let i=0; i<3 && wrongOptions.length < 3; i++) {
+        for(let j=0; j<3 && wrongOptions.length < 3; j++) {
+            if(i === rowOrder[2] && j === colOrder[2]) continue;
+            const ws = shapes[i].svg.replace('fill="none"', `fill="${fills[j]}"`);
+            wrongOptions.push(ws);
+        }
+    }
+
+    const choices = shuffle([
+        { svg: svgWrap(correctSvg), correct: true },
+        ...wrongOptions.slice(0,3).map(s => ({ svg: svgWrap(s), correct: false }))
+    ]);
+
+    return {
+        type: 'pattern',
+        text: 'Welches Bild vervollstaendigt das Muster?',
+        gridSvgs,
+        choices,
+        correctIdx: choices.findIndex(c => c.correct),
+        explanation: `Jede Zeile hat eine andere Form, jede Spalte eine andere Fuellung.`
+    };
+}
+
+// Pattern 3: Fill pattern (stripe, dot, solid across grid)
+function genFillPattern() {
+    const patterns = [
+        '<line x1="15" y1="15" x2="45" y2="45" stroke="black" stroke-width="3"/>',
+        '<line x1="15" y1="45" x2="45" y2="15" stroke="black" stroke-width="3"/>',
+        '<line x1="15" y1="15" x2="45" y2="45" stroke="black" stroke-width="3"/><line x1="15" y1="45" x2="45" y2="15" stroke="black" stroke-width="3"/>',
+    ];
+    const sizes = [14, 18, 22];
+    const sizeOrder = shuffle([0,1,2]);
+    const patOrder = shuffle([0,1,2]);
+
+    const grid = [];
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++) {
+        const sz = sizes[sizeOrder[c]];
+        const pat = patterns[patOrder[r]];
+        grid.push(`<circle cx="30" cy="30" r="${sz}" stroke="black" stroke-width="2" fill="none"/>${pat}`);
+    }
+
+    const correctSvg = grid[8];
+    const gridSvgs = grid.slice(0,8).map(s => svgWrap(s));
+
+    const wrongOptions = [];
+    for(let i=0;i<3 && wrongOptions.length<3;i++) {
+        for(let j=0;j<3 && wrongOptions.length<3;j++) {
+            if(i===sizeOrder[2] && j===patOrder[2]) continue;
+            wrongOptions.push(`<circle cx="30" cy="30" r="${sizes[i]}" stroke="black" stroke-width="2" fill="none"/>${patterns[j]}`);
+        }
+    }
+
+    const choices = shuffle([
+        { svg: svgWrap(correctSvg), correct: true },
+        ...wrongOptions.slice(0,3).map(s => ({ svg: svgWrap(s), correct: false }))
+    ]);
+
+    return {
+        type: 'pattern',
+        text: 'Welches Bild vervollstaendigt das Muster?',
+        gridSvgs, choices,
+        correctIdx: choices.findIndex(c => c.correct),
+        explanation: 'Jede Zeile hat ein anderes Linienmuster, jede Spalte eine andere Kreisgroesse.'
+    };
+}
+
+// Pattern 4: Count of objects increases
+function genCountPattern() {
+    const obj = pick([
+        (x,y) => `<circle cx="${x}" cy="${y}" r="5" fill="black"/>`,
+        (x,y) => `<rect x="${x-4}" y="${y-4}" width="8" height="8" fill="black"/>`,
+        (x,y) => `<polygon points="${x},${y-6} ${x+5},${y+4} ${x-5},${y+4}" fill="black"/>`,
+    ],1)[0];
+
+    const positions = [[30,15],[15,30],[45,30],[30,45],[15,15],[45,15],[15,45],[45,45],[30,30]];
+    const rowCounts = shuffle([1,2,3]);
+    const colAdds = shuffle([0,1,2]);
+
+    const grid = [];
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++) {
+        const count = rowCounts[r] + colAdds[c];
+        const pos = positions.slice(0, count);
+        grid.push(pos.map(([x,y]) => obj(x,y)).join(''));
+    }
+
+    const correctSvg = grid[8];
+    const gridSvgs = grid.slice(0,8).map(s => svgWrap(s));
+
+    const correctCount = rowCounts[2] + colAdds[2];
+    const wrongCounts = [1,2,3,4,5,6].filter(n => n !== correctCount).slice(0,3);
+    const wrongOptions = wrongCounts.map(n => positions.slice(0,n).map(([x,y])=>obj(x,y)).join(''));
+
+    const choices = shuffle([
+        { svg: svgWrap(correctSvg), correct: true },
+        ...wrongOptions.map(s => ({ svg: svgWrap(s), correct: false }))
+    ]);
+
+    return {
+        type: 'pattern',
+        text: 'Welches Bild vervollstaendigt das Muster?',
+        gridSvgs, choices,
+        correctIdx: choices.findIndex(c => c.correct),
+        explanation: `Die Anzahl der Objekte folgt einem Muster pro Zeile und Spalte.`
+    };
+}
+
+// Pattern 5: Line orientations (like the FH image)
+function genLinePattern() {
+    const lineTypes = [
+        (a) => `<line x1="10" y1="30" x2="50" y2="30" stroke="black" stroke-width="3" transform="rotate(${a},30,30)"/>`,
+        (a) => `<line x1="10" y1="25" x2="50" y2="25" stroke="black" stroke-width="2.5" transform="rotate(${a},30,30)"/><line x1="10" y1="35" x2="50" y2="35" stroke="black" stroke-width="2.5" transform="rotate(${a},30,30)"/>`,
+        (a) => `<line x1="10" y1="22" x2="50" y2="22" stroke="black" stroke-width="2" transform="rotate(${a},30,30)"/><line x1="10" y1="30" x2="50" y2="30" stroke="black" stroke-width="2" transform="rotate(${a},30,30)"/><line x1="10" y1="38" x2="50" y2="38" stroke="black" stroke-width="2" transform="rotate(${a},30,30)"/>`,
+    ];
+    const endCaps = [
+        (a) => `<circle cx="10" cy="30" r="4" fill="black" transform="rotate(${a},30,30)"/><circle cx="50" cy="30" r="4" fill="black" transform="rotate(${a},30,30)"/>`,
+        (a) => `<rect x="6" y="26" width="8" height="8" fill="black" transform="rotate(${a},30,30)"/><rect x="46" y="26" width="8" height="8" fill="black" transform="rotate(${a},30,30)"/>`,
+        (a) => `<polygon points="10,26 10,34 4,30" fill="black" transform="rotate(${a},30,30)"/><polygon points="50,26 50,34 56,30" fill="black" transform="rotate(${a},30,30)"/>`,
+    ];
+    const angles = shuffle([0, 45, 90]);
+    const lineOrder = shuffle([0,1,2]);
+    const capOrder = shuffle([0,1,2]);
+
+    const grid = [];
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++) {
+        const a = angles[c];
+        grid.push(lineTypes[lineOrder[r]](a) + endCaps[capOrder[r]](a));
+    }
+
+    const correctSvg = grid[8];
+    const gridSvgs = grid.slice(0,8).map(s => svgWrap(s));
+
+    const wrongOptions = [];
+    for(let i=0;i<3 && wrongOptions.length<3;i++) {
+        for(let j=0;j<3 && wrongOptions.length<3;j++) {
+            if(i===lineOrder[2] && j===capOrder[2]) continue;
+            const a = angles[2];
+            wrongOptions.push(lineTypes[i](a) + endCaps[j](a));
+        }
+    }
+
+    const choices = shuffle([
+        { svg: svgWrap(correctSvg), correct: true },
+        ...wrongOptions.slice(0,3).map(s => ({ svg: svgWrap(s), correct: false }))
+    ]);
+
+    return {
+        type: 'pattern',
+        text: 'Welches Bild vervollstaendigt das Muster?',
+        gridSvgs, choices,
+        correctIdx: choices.findIndex(c => c.correct),
+        explanation: 'Jede Zeile hat andere Linien/Endkappen, jede Spalte eine andere Ausrichtung.'
+    };
+}
+
+// ======================== INTERVIEW FRAGEN ========================
+const interviewQuestions = [
+    { category: "motivation", text: "Warum haben Sie sich fuer dieses Studium entschieden?", tips: ["Verbinde persoenliche Erfahrung mit dem Studienwunsch","Zeig, dass du dich mit den Inhalten auseinandergesetzt hast","Nenne konkrete Module oder Schwerpunkte","Erklaere, warum gerade diese Hochschule"] },
+    { category: "motivation", text: "Was erwarten Sie sich von diesem Studium?", tips: ["Nenne fachliche UND persoenliche Erwartungen","Zeig realistische Vorstellungen","Verbinde Erwartungen mit deinen Zielen"] },
+    { category: "motivation", text: "Wo sehen Sie sich in 5 Jahren?", tips: ["Sei konkret aber flexibel","Zeig Ambition ohne unrealistisch zu wirken","Verbinde deine Vision mit dem Studiengang"] },
+    { category: "motivation", text: "Warum sollten wir gerade Sie aufnehmen?", tips: ["2-3 konkrete Eigenschaften/Erfahrungen","Was du zur Gemeinschaft beitragen kannst","Selbstbewusst aber nicht arrogant"] },
+    { category: "persoenlich", text: "Erzaehlen Sie uns etwas ueber sich.", tips: ["Struktur: Wer bin ich, was mache ich, was treibt mich an","Max. 2 Minuten","Fokus auf Relevantes fuer das Studium"] },
+    { category: "persoenlich", text: "Was sind Ihre groessten Staerken?", tips: ["Staerken die zum Studium passen","Jede mit konkretem Beispiel belegen","2-3 reichen"] },
+    { category: "persoenlich", text: "Was ist Ihre groesste Schwaeche?", tips: ["Echte Schwaeche, keine versteckte Staerke","Zeig dass du daran arbeitest","Nicht studienkritisch"] },
+    { category: "persoenlich", text: "Was machen Sie in Ihrer Freizeit?", tips: ["Zeig Vielseitigkeit","Verbinde Hobbys mit Faehigkeiten wenn moeglich","Sei authentisch"] },
+    { category: "fachlich", text: "Was wissen Sie ueber unseren Studiengang?", tips: ["Recherchiere vorher!","Spezifische Details nennen","Echtes Interesse zeigen"] },
+    { category: "fachlich", text: "Welche Erfahrungen bringen Sie mit?", tips: ["Schulische Leistungen, Praktika, Ehrenamt","Auch informelle Erfahrungen zaehlen","Nutze STAR-Methode"] },
+    { category: "situativ", text: "Beschreiben Sie eine Herausforderung die Sie ueberwunden haben.", tips: ["Nutze STAR-Methode","Relevante Herausforderung waehlen","Fokus auf DEIN Handeln und Ergebnis"] },
+    { category: "situativ", text: "Wie gehen Sie mit Stress um?", tips: ["Konkrete Strategien nennen","Beispiel aus der Vergangenheit","Zeig dass Stress dich nicht laehmt"] },
+    { category: "situativ", text: "Erzaehlen Sie von einem Misserfolg.", tips: ["Wirklichen Misserfolg nennen","Fokus auf die Lektion","Persoenliches Wachstum zeigen"] },
+    { category: "situativ", text: "Wie arbeiten Sie im Team?", tips: ["Konkretes Beispiel","Flexibilitaet in verschiedenen Rollen","Konflikte und deren Loesung erwaehnen"] },
+];
+
+const flashcards = [
+    { q: "Was ist die STAR-Methode?", a: "Situation - Task - Action - Result. Struktur um Erfahrungen ueberzeugend zu erzaehlen." },
+    { q: "Wie lang sollte eine Antwort sein?", a: "30 Sekunden bis 2 Minuten. Kurz genug um nicht zu langweilen, lang genug fuer Substanz." },
+    { q: "Was tun bei einer Frage ohne Antwort?", a: "Ehrlich sagen: 'Darueber habe ich noch nicht nachgedacht, aber spontan wuerde ich sagen...'" },
+    { q: "Welche Fragen sollte ICH stellen?", a: "'Wie sieht ein typischer Studienalltag aus?' / 'Welche Praxisprojekte gibt es?' KEINE Fragen zu Noten." },
+    { q: "Was bedeutet 'authentisch sein'?", a: "Nicht verstellen. Eigene Worte. Zu Unsicherheiten stehen." },
+    { q: "Wie bereite ich die Schwaechen-Frage vor?", a: "Echte Schwaeche, nicht studienkritisch, zeig dass du daran arbeitest." },
+    { q: "Was anziehen?", a: "Gepflegt, Business Casual. Du sollst dich wohlfuehlen." },
+    { q: "Haeufigster Fehler?", a: "Zu allgemein. 'Ich mag Menschen' sagt nichts. Konkretes Beispiel bringen!" },
+    { q: "Koerpersprache?", a: "Aufrecht sitzen, Blickkontakt, Haende ruhig, echtes Laecheln." },
+    { q: "Was wenn ich nervoes bin?", a: "Normal! 3x tief atmen, langsam sprechen. Man darf es sogar sagen." },
+];
+
+// ======================== STATE ========================
+let currentCat = 'logik';
+let catIndex = {};
+let catAnswered = {};
+let testStats = { correct: 0, wrong: 0, byCategory: {} };
+let probeTestActive = false;
+let probeTestQuestions = [];
+let probeTestIndex = 0;
+let probeTestAnswers = [];
+let probeTestTimer = null;
+let probeTestLength = 20;
+let probeTestTimeLimit = 20 * 60;
+let probeTestTimeLeft = 0;
+
+// Interview state
+let currentIvQuestion = 0;
+let ivAnswers = {};
+let ivRatings = {};
+let ivStartTime = Date.now();
+let ivTimerInterval = null;
+let ivTimerRunning = false;
+let ivTimerSeconds = 120;
+let currentFlashcard = 0;
+
+// ======================== INIT ========================
+function init() {
+    ['logik','muster','mathe','wort','grammar','vocab'].forEach(cat => { catIndex[cat] = 0; catAnswered[cat] = {}; });
+    refreshAllQuestions();
+    loadAllState();
+    renderQuiz();
+    renderInterviewQuestion();
+    renderFlashcard();
+    renderStats();
+    setupAllTabs();
+    updateInterviewProgress();
+}
+
+// ======================== MODE SWITCH ========================
+function switchMode(mode) {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    event.target.closest('.mode-btn').classList.add('active');
+    document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(mode === 'test' ? 'testSection' : 'interviewSection').classList.add('active');
+}
+
+// ======================== TAB SETUP ========================
+function setupAllTabs() {
+    document.querySelectorAll('#testTabs .tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('#testTabs .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#testSection > .section').forEach(s => s.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.testtab).classList.add('active');
+            if (tab.dataset.testtab === 'statistik') renderStats();
+        });
+    });
+    document.querySelectorAll('#interviewTabs .tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('#interviewTabs .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#interviewSection > .section').forEach(s => s.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.ivtab).classList.add('active');
+        });
+    });
+}
+
+// ======================== QUIZ (CATEGORY PRACTICE) ========================
+let catTestMode = false; // false = Startscreen, true = im Test
+let catTestFinished = false;
+
+function selectCat(cat) {
+    currentCat = cat;
+    document.querySelectorAll('#catButtons .test-opt').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    catTestMode = false;
+    catTestFinished = false;
+    renderQuiz();
+}
+
+function startCatTest() {
+    refreshQuestions(currentCat);
+    catTestMode = true;
+    catTestFinished = false;
+    catIndex[currentCat] = 0;
+    catAnswered[currentCat] = {};
+    renderQuiz();
+}
+
+function renderQuiz() {
+    const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+    const badgeClass = { logik: 'badge-logik', muster: 'badge-logik', mathe: 'badge-mathe', wort: 'badge-wort', grammar: 'badge-grammar', vocab: 'badge-vocab' };
+
+    // Startscreen
+    if (!catTestMode) {
+        document.getElementById('quizArea').innerHTML = `
+            <div class="test-config">
+                <h2>${catNames[currentCat]}</h2>
+                <p style="color:var(--text-muted);margin:16px 0">20 zufaellig generierte Fragen. Ergebnis siehst du erst am Ende - genau wie beim echten Test.</p>
+                <p style="color:var(--warning);font-size:0.9rem;margin-bottom:20px">Jedes Mal neue Fragen - du kannst beliebig oft ueben!</p>
+                <button class="btn btn-primary" onclick="startCatTest()" style="font-size:1.1rem;padding:16px 40px">
+                    Kategorie-Test starten
+                </button>
+            </div>`;
+        return;
+    }
+
+    // Finished - show results
+    if (catTestFinished) {
+        renderCatResults();
+        return;
+    }
+
+    const qs = testQuestions[currentCat];
+    const idx = catIndex[currentCat];
+    const q = qs[idx];
+    const selected = catAnswered[currentCat][idx];
+    const letters = ['A','B','C','D'];
+
+    // Pattern or text question?
+    let questionContent = '';
+    if (q.type === 'pattern') {
+        // SVG grid + choices
+        const gridHtml = q.gridSvgs.map(svg => `<div class="pattern-cell-svg">${svg}</div>`).join('')
+            + '<div class="pattern-cell-svg question-mark">?</div>';
+        const choicesHtml = q.choices.map((ch, i) => {
+            let cls = 'pattern-choice';
+            if (i === selected) cls += ' selected';
+            return `<div class="${cls}" onclick="answerQuiz(${i})">${ch.svg}</div>`;
+        }).join('');
+        questionContent = `
+            <div class="quiz-question-text">${idx + 1}. ${q.text}</div>
+            <div class="pattern-matrix">${gridHtml}</div>
+            <div class="pattern-choices">${choicesHtml}</div>`;
+    } else {
+        const optionsHtml = q.options.map((opt, i) => {
+            let cls = 'quiz-option';
+            if (i === selected) cls += ' selected';
+            return `<div class="${cls}" onclick="answerQuiz(${i})">
+                <span class="letter">${letters[i]}</span><span>${opt}</span>
+            </div>`;
+        }).join('');
+        questionContent = `
+            <div class="quiz-question-text">${idx + 1}. ${q.text}</div>
+            <div class="quiz-options">${optionsHtml}</div>`;
+    }
+
+    // Question dots navigation
+    let dots = qs.map((_, i) => {
+        let bg = 'var(--surface2)';
+        if (i === idx) bg = 'var(--primary)';
+        else if (catAnswered[currentCat][i] !== undefined) bg = 'rgba(0,154,204,0.4)';
+        return `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;margin:2px;cursor:pointer;background:${bg}" onclick="jumpQuiz(${i})"></span>`;
+    }).join('');
+
+    const answeredCount = Object.keys(catAnswered[currentCat]).length;
+
+    document.getElementById('quizArea').innerHTML = `
+        <div class="quiz-question">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <span class="quiz-category-badge ${badgeClass[currentCat]}">${catNames[currentCat]}</span>
+                <span style="color:var(--text-muted);font-size:0.9rem">${answeredCount} von ${qs.length} beantwortet</span>
+            </div>
+            <div class="progress-bar" style="margin-bottom:20px">
+                <div class="progress-fill" style="width:${(answeredCount/qs.length)*100}%"></div>
+            </div>
+            ${questionContent}
+            <div class="quiz-nav" style="margin-top:20px">
+                <button class="btn btn-secondary" onclick="prevQuiz()" ${idx === 0 ? 'disabled style="opacity:0.4"':''}>Zurueck</button>
+                <button class="btn btn-primary" onclick="nextQuiz()">
+                    ${idx === qs.length - 1 ? 'Weiter' : 'Naechste'}
+                </button>
+                ${answeredCount === qs.length ? '<button class="btn btn-success" onclick="finishCatTest()">Test abgeben</button>' : ''}
+                <span class="quiz-counter">${idx + 1} / ${qs.length}</span>
+            </div>
+            <div style="text-align:center;margin-top:12px;line-height:2">${dots}</div>
+            ${answeredCount > 0 ? '<div style="text-align:center;margin-top:8px"><button class="btn btn-secondary" onclick="finishCatTest()" style="font-size:0.85rem">Test vorzeitig abgeben</button></div>' : ''}
+        </div>
+    `;
+}
+
+// Helper: get correct answer index for any question type
+function getCorrectIdx(q) { return q.type === 'pattern' ? q.correctIdx : q.correct; }
+
+function renderCatResults() {
+    const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+    const qs = testQuestions[currentCat];
+    const letters = ['A','B','C','D'];
+    let correct = 0, wrong = 0, unanswered = 0;
+
+    qs.forEach((q, i) => {
+        const ans = catAnswered[currentCat][i];
+        if (ans === undefined) unanswered++;
+        else if (ans === getCorrectIdx(q)) correct++;
+        else wrong++;
+    });
+
+    const pct = Math.round((correct / qs.length) * 100);
+    let feedback = pct >= 85 ? 'Ausgezeichnet!' : pct >= 70 ? 'Sehr gut!' : pct >= 55 ? 'Solide - weiter ueben!' : pct >= 40 ? 'Noch Luft nach oben.' : 'Mehr Uebung noetig.';
+
+    // Update global stats
+    if (!testStats.byCategory[currentCat]) testStats.byCategory[currentCat] = { correct: 0, wrong: 0 };
+    testStats.byCategory[currentCat].correct += correct;
+    testStats.byCategory[currentCat].wrong += wrong;
+    testStats.correct += correct;
+    testStats.wrong += wrong;
+    saveAllState();
+
+    let detailHtml = qs.map((q, i) => {
+        const ans = catAnswered[currentCat][i];
+        const ci = getCorrectIdx(q);
+        const isCorrect = ans === ci;
+        const answered = ans !== undefined;
+        const isPattern = q.type === 'pattern';
+        return `<div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:8px;border-left:3px solid ${isCorrect ? 'var(--success)' : !answered ? 'var(--text-muted)' : 'var(--danger)'}">
+            <div style="font-weight:600;font-size:0.9rem;margin-bottom:6px">${i+1}. ${q.text}</div>
+            <div style="font-size:0.85rem">
+                ${!answered
+                    ? '<span style="color:var(--text-muted)">Nicht beantwortet</span>'
+                    : isPattern
+                        ? `<span style="color:${isCorrect?'var(--success)':'var(--danger)'}">Antwort ${letters[ans]} ${isCorrect?'✓':'✗'}</span>`
+                        : `<span style="color:${isCorrect?'var(--success)':'var(--danger)'}">Deine Antwort: ${letters[ans]} - ${q.options[ans]} ${isCorrect?'✓':'✗'}</span>`}
+                ${!isCorrect && answered && !isPattern ? `<br><span style="color:var(--success)">Richtig: ${letters[ci]} - ${q.options[ci]}</span>` : ''}
+                ${!isCorrect ? `<br><span style="color:var(--text-muted);font-size:0.8rem">${q.explanation}</span>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('quizArea').innerHTML = `
+        <div class="results-panel" style="margin-bottom:20px">
+            <div class="score-big">${pct}%</div>
+            <div class="score-label">${feedback}</div>
+            <div style="margin:12px 0;color:var(--text-muted)">
+                ${correct} richtig | ${wrong} falsch | ${unanswered} unbeantwortet
+            </div>
+        </div>
+        <h3 style="margin:20px 0 12px;color:var(--primary)">${catNames[currentCat]} - Auswertung</h3>
+        ${detailHtml}
+        <div class="btn-group" style="justify-content:center;margin-top:24px">
+            <button class="btn btn-primary" onclick="startCatTest()">Neue Fragen generieren & nochmal</button>
+            <button class="btn btn-secondary" onclick="catTestMode=false;catTestFinished=false;renderQuiz()">Zurueck</button>
+        </div>
+    `;
+}
+
+function answerQuiz(idx) {
+    catAnswered[currentCat][catIndex[currentCat]] = idx;
+    renderQuiz();
+}
+
+function nextQuiz() {
+    const qs = testQuestions[currentCat];
+    if (catIndex[currentCat] < qs.length - 1) {
+        catIndex[currentCat]++;
+    }
+    renderQuiz();
+}
+
+function prevQuiz() {
+    if (catIndex[currentCat] > 0) catIndex[currentCat]--;
+    renderQuiz();
+}
+
+function jumpQuiz(i) {
+    catIndex[currentCat] = i;
+    renderQuiz();
+}
+
+function finishCatTest() {
+    catTestFinished = true;
+    renderQuiz();
+}
+
+// ======================== PROBETEST ========================
+function setTimeLimit(mins) {
+    probeTestTimeLimit = mins * 60;
+    document.getElementById('timeLimitDisplay').textContent = mins + ' Minuten';
+}
+
+function setTestLength(n) {
+    probeTestLength = n;
+    // Setze Slider auf passenden Default-Wert
+    const defaultTime = n;
+    probeTestTimeLimit = defaultTime * 60;
+    document.getElementById('timeSlider').value = defaultTime;
+    document.getElementById('timeLimitDisplay').textContent = defaultTime + ' Minuten';
+    document.querySelectorAll('.test-options .test-opt').forEach(b => b.classList.remove('active'));
+    document.getElementById('len' + n).classList.add('active');
+}
+
+function startProbetest() {
+    document.getElementById('testConfigPanel').style.display = 'none';
+    document.getElementById('probetestArea').style.display = 'block';
+    // Generate fresh questions for each category, proportional
+    const perCat = Math.ceil(probeTestLength / 5);
+    const all = [];
+    ['logik','muster','mathe','wort','grammar','vocab'].forEach(cat => {
+        generateQuestions(cat, perCat).forEach(q => all.push({ ...q, cat }));
+    });
+    const shuffled = all.sort(() => Math.random() - 0.5);
+    probeTestQuestions = shuffled.slice(0, probeTestLength);
+    probeTestIndex = 0;
+    probeTestAnswers = new Array(probeTestLength).fill(null);
+    probeTestTimeLeft = probeTestTimeLimit;
+    probeTestActive = true;
+    renderProbeQuestion();
+    startProbeTimer();
+}
+
+function startProbeTimer() {
+    clearInterval(probeTestTimer);
+    probeTestTimer = setInterval(() => {
+        probeTestTimeLeft--;
+        updateProbeTimerDisplay();
+        if (probeTestTimeLeft <= 0) {
+            clearInterval(probeTestTimer);
+            finishProbetest();
+        }
+    }, 1000);
+}
+
+function updateProbeTimerDisplay() {
+    const m = Math.floor(probeTestTimeLeft / 60);
+    const s = probeTestTimeLeft % 60;
+    const el = document.getElementById('probeTimer');
+    if (!el) return;
+    el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    if (probeTestTimeLeft <= 60) el.className = 'test-timer danger';
+    else if (probeTestTimeLeft <= probeTestTimeLimit * 0.25) el.className = 'test-timer warning';
+    else el.className = 'test-timer';
+}
+
+function renderProbeQuestion() {
+    const q = probeTestQuestions[probeTestIndex];
+    const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+    const badgeClass = { logik: 'badge-logik', muster: 'badge-logik', mathe: 'badge-mathe', wort: 'badge-wort', grammar: 'badge-grammar', vocab: 'badge-vocab' };
+    const letters = ['A','B','C','D'];
+    const selected = probeTestAnswers[probeTestIndex];
+
+    // Handle pattern vs text questions
+    let questionBody = '';
+    if (q.type === 'pattern') {
+        const gridHtml = q.gridSvgs.map(svg => `<div class="pattern-cell-svg">${svg}</div>`).join('')
+            + '<div class="pattern-cell-svg question-mark">?</div>';
+        const choicesHtml = q.choices.map((ch, i) => {
+            let cls = 'pattern-choice';
+            if (i === selected) cls += ' selected';
+            return `<div class="${cls}" onclick="probeAnswer(${i})">${ch.svg}</div>`;
+        }).join('');
+        questionBody = `<div class="quiz-question-text">${probeTestIndex + 1}. ${q.text}</div>
+            <div class="pattern-matrix">${gridHtml}</div>
+            <div class="pattern-choices">${choicesHtml}</div>`;
+    } else {
+        const optionsHtml = q.options.map((opt, i) => {
+            let cls = 'quiz-option';
+            if (i === selected) cls += ' selected';
+            return `<div class="${cls}" onclick="probeAnswer(${i})">
+                <span class="letter">${letters[i]}</span><span>${opt}</span>
+            </div>`;
+        }).join('');
+        questionBody = `<div class="quiz-question-text">${probeTestIndex + 1}. ${q.text}</div>
+            <div class="quiz-options">${optionsHtml}</div>`;
+    }
+
+    let dots = probeTestQuestions.map((_, i) => {
+        let style = 'display:inline-block;width:12px;height:12px;border-radius:50%;margin:2px;cursor:pointer;';
+        if (i === probeTestIndex) style += 'background:var(--primary);';
+        else if (probeTestAnswers[i] !== null) style += 'background:var(--primary);opacity:0.5;';
+        else style += 'background:var(--surface2);border:1px solid #d1d5db;';
+        return `<span style="${style}" onclick="probeJump(${i})"></span>`;
+    }).join('');
+
+    document.getElementById('probetestArea').innerHTML = `
+        <div class="test-timer" id="probeTimer"></div>
+        <div class="progress-bar" style="margin-bottom:20px">
+            <div class="progress-fill" style="width:${((probeTestIndex + 1) / probeTestQuestions.length) * 100}%"></div>
+        </div>
+        <div class="quiz-question">
+            <span class="quiz-category-badge ${badgeClass[q.cat]}">${catNames[q.cat]}</span>
+            ${questionBody}
+            <div class="quiz-nav">
+                <button class="btn btn-secondary" onclick="probePrev()" ${probeTestIndex === 0 ? 'disabled style="opacity:0.4"':''}>Zurueck</button>
+                <button class="btn btn-primary" onclick="probeNext()">
+                    ${probeTestIndex === probeTestQuestions.length - 1 ? 'Test abgeben' : 'Weiter'}
+                </button>
+                <span class="quiz-counter">${probeTestIndex + 1} / ${probeTestQuestions.length}</span>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:12px;line-height:2">${dots}</div>
+        <div style="text-align:center;margin-top:12px">
+            <button class="btn btn-secondary" onclick="finishProbetest()" style="font-size:0.85rem">Test vorzeitig abgeben</button>
+        </div>
+    `;
+    updateProbeTimerDisplay();
+}
+
+function probeAnswer(i) {
+    probeTestAnswers[probeTestIndex] = i;
+    renderProbeQuestion();
+}
+
+function probeNext() {
+    if (probeTestIndex < probeTestQuestions.length - 1) {
+        probeTestIndex++;
+        renderProbeQuestion();
+    } else {
+        finishProbetest();
+    }
+}
+
+function probePrev() {
+    if (probeTestIndex > 0) { probeTestIndex--; renderProbeQuestion(); }
+}
+
+function probeJump(i) {
+    probeTestIndex = i;
+    renderProbeQuestion();
+}
+
+function finishProbetest() {
+    clearInterval(probeTestTimer);
+    probeTestActive = false;
+    const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+
+    let correct = 0, wrong = 0, unanswered = 0;
+    const catResults = {};
+    probeTestQuestions.forEach((q, i) => {
+        if (!catResults[q.cat]) catResults[q.cat] = { correct: 0, total: 0 };
+        catResults[q.cat].total++;
+        if (probeTestAnswers[i] === null) unanswered++;
+        else if (probeTestAnswers[i] === getCorrectIdx(q)) { correct++; catResults[q.cat].correct++; }
+        else wrong++;
+    });
+    const pct = Math.round((correct / probeTestQuestions.length) * 100);
+    const timeUsed = probeTestTimeLimit - probeTestTimeLeft;
+    const mUsed = Math.floor(timeUsed / 60);
+    const sUsed = timeUsed % 60;
+
+    let catHtml = Object.entries(catResults).map(([cat, r]) => `
+        <div class="score-cat">
+            <div class="cat-score" style="color:${r.correct/r.total >= 0.7 ? 'var(--success)' : r.correct/r.total >= 0.5 ? 'var(--warning)' : 'var(--secondary)'}">${r.correct}/${r.total}</div>
+            <div class="cat-label">${catNames[cat]}</div>
+        </div>
+    `).join('');
+
+    // Save to leaderboard
+    saveToLeaderboard(pct, correct, probeTestQuestions.length, timeUsed);
+
+    let detailHtml = probeTestQuestions.map((q, i) => {
+        const ci = getCorrectIdx(q);
+        const isCorrect = probeTestAnswers[i] === ci;
+        const answered = probeTestAnswers[i] !== null;
+        const letters = ['A','B','C','D'];
+        const isPattern = q.type === 'pattern';
+        return `<div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:8px;border-left:3px solid ${isCorrect ? 'var(--success)' : !answered ? 'var(--text-muted)' : 'var(--danger)'}">
+            <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px">${i+1}. ${q.text}</div>
+            <div style="font-size:0.85rem;color:${isCorrect ? 'var(--success)' : 'var(--danger)'}">
+                ${!answered ? '<span style="color:var(--text-muted)">Nicht beantwortet</span>'
+                    : isPattern ? `Antwort ${letters[probeTestAnswers[i]]} ${isCorrect?'✓':'✗'}`
+                    : `Deine Antwort: ${letters[probeTestAnswers[i]]} - ${q.options[probeTestAnswers[i]]} ${isCorrect?'✓':'✗'}`}
+                ${!isCorrect && answered && !isPattern ? `<br><span style="color:var(--success)">Richtig: ${letters[ci]} - ${q.options[ci]}</span>` : ''}
+            </div>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">${q.explanation}</div>
+        </div>`;
+    }).join('');
+
+    let feedback = '';
+    if (pct >= 85) feedback = 'Ausgezeichnet! Du bist bestens vorbereitet!';
+    else if (pct >= 70) feedback = 'Sehr gut! Noch ein bisschen ueben und du bist top!';
+    else if (pct >= 55) feedback = 'Solide Leistung. Fokussiere dich auf deine Schwachstellen.';
+    else if (pct >= 40) feedback = 'Weiter ueben! Nutze das Kategorie-Training fuer schwache Bereiche.';
+    else feedback = 'Nicht aufgeben! Geh systematisch jede Kategorie durch.';
+
+    document.getElementById('probetestArea').innerHTML = `
+        <div class="results-panel">
+            <div class="score-big">${pct}%</div>
+            <div class="score-label">${feedback}</div>
+            <div style="margin:16px 0;color:var(--text-muted)">
+                ${correct} richtig | ${wrong} falsch | ${unanswered} unbeantwortet | Zeit: ${mUsed}:${sUsed.toString().padStart(2,'0')}
+            </div>
+            <div class="score-breakdown">${catHtml}</div>
+        </div>
+        <h3 style="margin:24px 0 12px;color:var(--primary)">Detaillierte Auswertung</h3>
+        ${detailHtml}
+        <div class="btn-group" style="justify-content:center;margin-top:24px">
+            <button class="btn btn-primary" onclick="resetProbetest()">Neuen Test starten</button>
+        </div>
+    `;
+}
+
+function resetProbetest() {
+    document.getElementById('testConfigPanel').style.display = 'block';
+    document.getElementById('probetestArea').style.display = 'none';
+}
+
+// ======================== STATISTIK ========================
+function renderStats() {
+    const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+    const total = testStats.correct + testStats.wrong;
+    const pct = total > 0 ? Math.round((testStats.correct / total) * 100) : 0;
+
+    let catHtml = Object.keys(testQuestions).map(cat => {
+        const s = testStats.byCategory[cat] || { correct: 0, wrong: 0 };
+        const t = s.correct + s.wrong;
+        const p = t > 0 ? Math.round((s.correct / t) * 100) : 0;
+        return `<div class="card">
+            <h3>${catNames[cat]}</h3>
+            <div class="progress-bar" style="margin:12px 0"><div class="progress-fill" style="width:${p}%;background:${p>=70?'var(--success)':p>=50?'var(--warning)':'var(--secondary)'}"></div></div>
+            <div style="display:flex;justify-content:space-between;color:var(--text-muted);font-size:0.9rem">
+                <span>${s.correct} richtig / ${s.wrong} falsch</span>
+                <strong style="color:${p>=70?'var(--success)':p>=50?'var(--warning)':'var(--secondary)'}">${p}%</strong>
+            </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('statsArea').innerHTML = `
+        <div class="results-panel" style="margin-bottom:20px">
+            <div class="score-big">${pct}%</div>
+            <div class="score-label">Gesamt (${total} Fragen beantwortet)</div>
+        </div>
+        ${catHtml}
+        <div style="text-align:center;margin-top:16px">
+            <button class="btn btn-secondary" onclick="resetStats()">Statistik zuruecksetzen</button>
+        </div>
+    `;
+}
+
+function resetStats() {
+    if (!confirm('Wirklich alle Statistiken zuruecksetzen?')) return;
+    testStats = { correct: 0, wrong: 0, byCategory: {} };
+    Object.keys(testQuestions).forEach(cat => { catAnswered[cat] = {}; });
+    saveAllState();
+    renderStats();
+    renderQuiz();
+}
+
+// ======================== INTERVIEW SECTION ========================
+function renderInterviewQuestion() {
+    const q = interviewQuestions[currentIvQuestion];
+    const catMap = { motivation: ['Motivation','cat-motivation'], fachlich: ['Fachliches','cat-fachlich'], persoenlich: ['Persoenlich','cat-persoenlich'], situativ: ['Situativ','cat-situativ'] };
+    const [catLabel, catClass] = catMap[q.category];
+
+    document.getElementById('questionArea').innerHTML = `
+        <div class="question-card">
+            <span class="question-category ${catClass}">${catLabel}</span>
+            <div class="timer-container">
+                <span class="timer" id="ivTimer">2:00</span>
+                <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.85rem" onclick="toggleIvTimer()">
+                    <span id="ivTimerBtn">Start Timer</span>
+                </button>
+            </div>
+            <div class="question-text">${q.text}</div>
+            <textarea class="answer-area" placeholder="Schreibe hier deine Antwort..." oninput="saveIvAnswer(this.value)">${ivAnswers[currentIvQuestion] || ''}</textarea>
+            <div class="rating-container">
+                <span class="rating-label">Selbstbewertung:</span>
+                ${[1,2,3,4,5].map(i => `<span class="rating-star ${ivRatings[currentIvQuestion] >= i ? 'filled' : ''}" onclick="rateIv(${i})">&#11088;</span>`).join('')}
+            </div>
+            <div class="tips-toggle">
+                <div class="tips-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <span>Tipps anzeigen</span><span>&#9660;</span>
+                </div>
+                <div class="tips-content">
+                    <ul>${q.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevIvQ()" ${currentIvQuestion === 0 ? 'disabled style="opacity:0.4"':''}>Zurueck</button>
+                <span style="padding:12px;color:var(--text-muted)">${currentIvQuestion + 1} / ${interviewQuestions.length}</span>
+                <button class="btn btn-primary" onclick="nextIvQ()">${currentIvQuestion === interviewQuestions.length - 1 ? 'Fertig' : 'Naechste'}</button>
+            </div>
+        </div>
+    `;
+}
+
+function saveIvAnswer(val) { ivAnswers[currentIvQuestion] = val; saveAllState(); updateInterviewProgress(); }
+function rateIv(n) { ivRatings[currentIvQuestion] = n; saveAllState(); renderInterviewQuestion(); updateInterviewProgress(); }
+function nextIvQ() { stopIvTimer(); if (currentIvQuestion < interviewQuestions.length - 1) { currentIvQuestion++; renderInterviewQuestion(); } }
+function prevIvQ() { stopIvTimer(); if (currentIvQuestion > 0) { currentIvQuestion--; renderInterviewQuestion(); } }
+
+function toggleIvTimer() { if (ivTimerRunning) stopIvTimer(); else startIvTimer(); }
+function startIvTimer() {
+    ivTimerRunning = true; ivTimerSeconds = 120;
+    document.getElementById('ivTimerBtn').textContent = 'Stop';
+    ivTimerInterval = setInterval(() => {
+        ivTimerSeconds--;
+        const m = Math.floor(ivTimerSeconds / 60), s = ivTimerSeconds % 60;
+        const el = document.getElementById('ivTimer');
+        el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+        if (ivTimerSeconds <= 30) el.className = 'timer danger';
+        else if (ivTimerSeconds <= 60) el.className = 'timer warning';
+        else el.className = 'timer';
+        if (ivTimerSeconds <= 0) { stopIvTimer(); el.textContent = 'Zeit um!'; }
+    }, 1000);
+}
+function stopIvTimer() { ivTimerRunning = false; clearInterval(ivTimerInterval); const b = document.getElementById('ivTimerBtn'); if (b) b.textContent = 'Start Timer'; }
+
+function updateInterviewProgress() {
+    const answered = Object.values(ivAnswers).filter(a => a && a.length > 10).length;
+    const total = interviewQuestions.length;
+    const pct = Math.round((answered / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPercent').textContent = pct + '%';
+    document.getElementById('answeredCount').textContent = answered;
+    const rv = Object.values(ivRatings);
+    document.getElementById('avgRating').textContent = rv.length > 0 ? (rv.reduce((a,b)=>a+b,0)/rv.length).toFixed(1)+'/5' : '-';
+    document.getElementById('totalTime').textContent = Math.round((Date.now() - ivStartTime) / 60000) + ' min';
+}
+
+// Flashcards
+function renderFlashcard() {
+    document.getElementById('fcQuestion').textContent = flashcards[currentFlashcard].q;
+    document.getElementById('fcAnswer').textContent = flashcards[currentFlashcard].a;
+    document.getElementById('fcCounter').textContent = `${currentFlashcard + 1} / ${flashcards.length}`;
+    document.getElementById('flashcard').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+function nextCard() { currentFlashcard = (currentFlashcard + 1) % flashcards.length; renderFlashcard(); }
+function prevCard() { currentFlashcard = (currentFlashcard - 1 + flashcards.length) % flashcards.length; renderFlashcard(); }
+
+// Simulation
+function startSimulation(mode) {
+    const count = mode === 'quick' ? 5 : 10;
+    const shuffled = [...interviewQuestions].sort(() => Math.random() - 0.5).slice(0, count);
+    window.simQs = shuffled; window.simIdx = 0; window.simAs = [];
+    document.getElementById('simOverlay').classList.add('active');
+    renderSimQ();
+}
+function renderSimQ() {
+    const q = window.simQs[window.simIdx];
+    let secs = 120;
+    clearInterval(window.simTimer);
+    document.getElementById('simContent').innerHTML = `
+        <div style="color:var(--text-muted);font-size:0.85rem;margin-bottom:4px">Frage ${window.simIdx+1} von ${window.simQs.length}</div>
+        <div class="progress-bar" style="margin-bottom:16px"><div class="progress-fill" style="width:${(window.simIdx/window.simQs.length)*100}%"></div></div>
+        <p style="font-size:1.15rem;font-weight:600;margin-bottom:20px;line-height:1.4">"${q.text}"</p>
+        <div class="timer-container"><span class="timer" id="simT">2:00</span></div>
+        <textarea class="answer-area" id="simA" placeholder="Deine Antwort..."></textarea>
+        <div class="btn-group" style="margin-top:16px">
+            <button class="btn btn-primary" onclick="nextSimQ()">${window.simIdx === window.simQs.length-1 ? 'Beenden' : 'Weiter'}</button>
+            <button class="btn btn-secondary" onclick="skipSimQ()">Ueberspringen</button>
+        </div>`;
+    window.simTimer = setInterval(() => {
+        secs--;
+        const el = document.getElementById('simT');
+        if (!el) { clearInterval(window.simTimer); return; }
+        el.textContent = `${Math.floor(secs/60)}:${(secs%60).toString().padStart(2,'0')}`;
+        if (secs <= 30) el.className = 'timer danger';
+        else if (secs <= 60) el.className = 'timer warning';
+        if (secs <= 0) { clearInterval(window.simTimer); el.textContent = 'Zeit um!'; }
+    }, 1000);
+}
+function nextSimQ() {
+    clearInterval(window.simTimer);
+    window.simAs.push({ q: window.simQs[window.simIdx].text, a: document.getElementById('simA')?.value||'', skip: false });
+    if (window.simIdx < window.simQs.length-1) { window.simIdx++; renderSimQ(); } else showSimResults();
+}
+function skipSimQ() {
+    clearInterval(window.simTimer);
+    window.simAs.push({ q: window.simQs[window.simIdx].text, a: '', skip: true });
+    if (window.simIdx < window.simQs.length-1) { window.simIdx++; renderSimQ(); } else showSimResults();
+}
+function showSimResults() {
+    const ans = window.simAs.filter(a => !a.skip && a.a.length > 20).length;
+    const pct = Math.round((ans/window.simAs.length)*100);
+    document.getElementById('simContent').innerHTML = `
+        <div class="score-display"><div class="score-big">${pct}%</div>
+        <div class="score-label">${pct>=80?'Top!':pct>=60?'Gut, weiter ueben!':'Mehr Uebung noetig.'}</div></div>
+        ${window.simAs.map((a,i) => `<div style="background:var(--surface2);border-radius:10px;padding:14px;margin-top:10px">
+            <div style="font-weight:600;font-size:0.9rem">${i+1}. ${a.q}</div>
+            <div style="color:${a.skip?'var(--secondary)':'var(--text-muted)'};font-size:0.9rem;margin-top:4px">${a.skip?'(Uebersprungen)':a.a||'(Keine Antwort)'}</div>
+        </div>`).join('')}
+        <div class="btn-group" style="justify-content:center;margin-top:20px">
+            <button class="btn btn-primary" onclick="closeSimulation()">Schliessen</button>
+        </div>`;
+}
+function closeSimulation() { clearInterval(window.simTimer); document.getElementById('simOverlay').classList.remove('active'); }
+
+// Checklist
+function toggleCheck(li) { li.classList.toggle('done'); saveAllState(); }
+
+// ======================== PERSISTENCE ========================
+function saveAllState() {
+    const checklists = {};
+    document.querySelectorAll('.checklist').forEach(cl => {
+        checklists[cl.id] = [...cl.children].map(li => li.classList.contains('done'));
+    });
+    localStorage.setItem('fhwien-prep', JSON.stringify({
+        testStats, catAnswered, catIndex,
+        ivAnswers, ivRatings, currentIvQuestion, currentFlashcard, checklists
+    }));
+}
+function loadAllState() {
+    try {
+        const d = JSON.parse(localStorage.getItem('fhwien-prep'));
+        if (!d) return;
+        testStats = d.testStats || testStats;
+        catAnswered = d.catAnswered || catAnswered;
+        catIndex = d.catIndex || catIndex;
+        ivAnswers = d.ivAnswers || {};
+        ivRatings = d.ivRatings || {};
+        currentIvQuestion = d.currentIvQuestion || 0;
+        currentFlashcard = d.currentFlashcard || 0;
+        if (d.checklists) {
+            Object.entries(d.checklists).forEach(([id, states]) => {
+                const cl = document.getElementById(id);
+                if (cl) [...cl.children].forEach((li, i) => { if (states[i]) li.classList.add('done'); });
+            });
+        }
+    } catch(e) {}
+}
+
+// ======================== LEADERBOARD & NAME SYSTEM ========================
+let playerName = localStorage.getItem('fhwien-player') || '';
+let leaderboard = JSON.parse(localStorage.getItem('fhwien-leaderboard') || '[]');
+
+function showNameModal() {
+    document.getElementById('nameModal').classList.add('active');
+    document.getElementById('nameInput').value = playerName;
+    setTimeout(() => document.getElementById('nameInput').focus(), 100);
+}
+
+function saveName() {
+    const name = document.getElementById('nameInput').value.trim();
+    if (!name) return;
+    playerName = name;
+    localStorage.setItem('fhwien-player', name);
+    document.getElementById('nameModal').classList.remove('active');
+    updatePlayerDisplay();
+}
+
+function updatePlayerDisplay() {
+    const el = document.getElementById('currentPlayerDisplay');
+    if (el) el.textContent = playerName || '-';
+}
+
+function saveToLeaderboard(pct, correct, total, timeSecs) {
+    if (!playerName) return;
+    leaderboard.push({
+        name: playerName,
+        score: pct,
+        correct, total,
+        time: timeSecs,
+        date: new Date().toLocaleDateString('de-AT')
+    });
+    // Sort by score desc, then by time asc
+    leaderboard.sort((a,b) => b.score - a.score || a.time - b.time);
+    // Keep top 50
+    leaderboard = leaderboard.slice(0, 50);
+    localStorage.setItem('fhwien-leaderboard', JSON.stringify(leaderboard));
+    renderLeaderboard();
+}
+
+function renderLeaderboard() {
+    const el = document.getElementById('leaderboardList');
+    if (!el) return;
+    if (leaderboard.length === 0) {
+        el.innerHTML = '<div class="card" style="text-align:center"><p>Noch keine Ergebnisse. Mach einen Probetest!</p></div>';
+        return;
+    }
+    el.innerHTML = leaderboard.map((entry, i) => {
+        const medal = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+        const m = Math.floor(entry.time / 60);
+        const s = entry.time % 60;
+        return `<div class="lb-entry ${medal}">
+            <div class="lb-rank" ${!medal?'style="background:var(--surface2)"':''}>${i+1}</div>
+            <div class="lb-name">${entry.name}
+                <div class="lb-details">${entry.date} | ${entry.correct}/${entry.total} | ${m}:${s.toString().padStart(2,'0')}</div>
+            </div>
+            <div class="lb-score">${entry.score}%</div>
+        </div>`;
+    }).join('');
+}
+
+function clearLeaderboard() {
+    if (!confirm('Rangliste wirklich loeschen?')) return;
+    leaderboard = [];
+    localStorage.setItem('fhwien-leaderboard', '[]');
+    renderLeaderboard();
+}
+
+// Check if name is set, show modal on first visit
+function checkName() {
+    if (!playerName) {
+        setTimeout(showNameModal, 500);
+    }
+    updatePlayerDisplay();
+    renderLeaderboard();
+}
+
+// Override init to include name check
+const origInit = init;
+init = function() {
+    origInit();
+    checkName();
+};
+
+init();
+</script>
+</body>
+</html>
