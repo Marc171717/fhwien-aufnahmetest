@@ -2497,6 +2497,7 @@ function finishChallenge() {
     clearInterval(challengeState.timer);
     const cs = challengeState;
     const catNames = { logik: 'Logisches Denken', muster: 'Muster erkennen', mathe: 'Mathematik', wort: 'Wortverstaendnis', grammar: 'Englisch Grammatik', vocab: 'Englisch Vokabular' };
+    const letters = ['A','B','C','D'];
 
     let correct = 0, wrong = 0, unanswered = 0;
     const catResults = {};
@@ -2520,8 +2521,9 @@ function finishChallenge() {
     localStorage.setItem('fhwien-challenges', JSON.stringify(challenges));
     saveToLeaderboard(pct, correct, cs.questions.length, timeUsed);
 
-    // Generate result code for sharing (encodes score + time)
-    const resultCode = btoa(JSON.stringify({ n: playerName, s: pct, c: correct, t: cs.questions.length, tm: timeUsed })).slice(0,20);
+    // Generate shareable result code (encodes name, score, time, etc.)
+    const resultData = { n: playerName||'Anonym', s: pct, c: correct, t: cs.questions.length, tm: timeUsed, cd: cs.code };
+    const resultCode = btoa(JSON.stringify(resultData));
 
     let catHtml = Object.entries(catResults).map(([cat, r]) => `
         <div class="score-cat">
@@ -2529,14 +2531,14 @@ function finishChallenge() {
             <div class="cat-label">${catNames[cat]}</div>
         </div>`).join('');
 
-    // Find other results with same code
+    // Find other results with same code (local + imported)
     const sameCode = challenges.filter(c => c.code === cs.code);
     let comparisonHtml = '';
     if (sameCode.length > 1) {
         const sorted = [...sameCode].sort((a,b) => b.score - a.score || a.time - b.time);
         comparisonHtml = `
             <div class="card" style="margin-top:20px">
-                <h3>Challenge-Ergebnis: ${cs.code}</h3>
+                <h3>Vergleich: ${cs.code}</h3>
                 ${sorted.map((r, i) => {
                     const medal = i === 0 ? 'gold' : i === 1 ? 'silver' : '';
                     const tm = Math.floor(r.time/60);
@@ -2552,9 +2554,34 @@ function finishChallenge() {
             </div>`;
     }
 
+    // Detailed question review
+    let detailHtml = cs.questions.map((q, i) => {
+        const ci = getCorrectIdx(q);
+        const ans = cs.answers[i];
+        const isCorrect = ans === ci;
+        const answered = ans !== null;
+        const isPattern = q.type === 'pattern';
+        return `<div style="background:var(--surface);border-radius:10px;padding:14px;margin-bottom:8px;border-left:3px solid ${isCorrect ? 'var(--success)' : !answered ? 'var(--text-muted)' : 'var(--danger)'}; box-shadow:var(--shadow)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.75rem;padding:3px 10px;border-radius:9999px;background:${isCorrect?'#ecfdf5':'#fef2f2'};color:${isCorrect?'var(--success)':'var(--danger)'};font-weight:600">${isCorrect?'Richtig':'Falsch'}</span>
+                <span style="font-size:0.75rem;color:var(--text-muted)">${catNames[q.cat]||''}</span>
+            </div>
+            <div style="font-weight:600;font-size:0.9rem;margin:8px 0 6px">${i+1}. ${q.text}</div>
+            <div style="font-size:0.85rem">
+                ${!answered
+                    ? '<span style="color:var(--text-muted)">Nicht beantwortet</span>'
+                    : isPattern
+                        ? `<span style="color:${isCorrect?'var(--success)':'var(--danger)'}">Deine Wahl: ${letters[ans]} ${isCorrect?'✓':'✗'}</span>`
+                        : `<span style="color:${isCorrect?'var(--success)':'var(--danger)'}">Deine Antwort: ${letters[ans]} - ${q.options[ans]} ${isCorrect?'✓':'✗'}</span>`}
+                ${!isCorrect && answered && !isPattern ? `<br><span style="color:var(--success)">Richtig: ${letters[ci]} - ${q.options[ci]}</span>` : ''}
+                ${!isCorrect ? `<br><span style="color:var(--text-muted);font-size:0.8rem">${q.explanation}</span>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+
     let feedback = pct >= 85 ? 'Ausgezeichnet!' : pct >= 70 ? 'Sehr gut!' : pct >= 55 ? 'Solide!' : pct >= 40 ? 'Weiter ueben!' : 'Nicht aufgeben!';
 
-    const shareText = `FH Wien Challenge ${cs.code}: ${pct}% (${correct}/${cs.questions.length}) in ${mUsed}:${sUsed.toString().padStart(2,'0')} - Schlag das! 🎓`;
+    const shareText = `FH Wien Challenge ${cs.code}: ${pct}% (${correct}/${cs.questions.length}) in ${mUsed}:${sUsed.toString().padStart(2,'0')} - Schlag das!`;
 
     document.getElementById('challengeArea').innerHTML = `
         <div class="results-panel" style="margin-bottom:20px">
@@ -2567,16 +2594,146 @@ function finishChallenge() {
                 ${correct} richtig | ${wrong} falsch | ${unanswered} offen | Zeit: ${mUsed}:${sUsed.toString().padStart(2,'0')}
             </div>
             <div class="score-breakdown">${catHtml}</div>
+
+            <!-- Ergebnis-Code zum Teilen -->
+            <div style="border-top:1px solid #e5e7eb;margin-top:24px;padding-top:20px">
+                <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:8px">Dein Ergebnis-Code (schick ihn deinem Gegner):</p>
+                <div style="background:var(--surface2);border-radius:10px;padding:12px;font-family:monospace;font-size:0.7rem;word-break:break-all;color:var(--text-muted);cursor:pointer;max-width:500px;margin:0 auto"
+                    onclick="navigator.clipboard.writeText('${resultCode}');this.style.borderColor='var(--success)';this.querySelector('span').textContent='Kopiert!'"
+                    title="Klicken zum Kopieren">
+                    ${resultCode}<br><span style="color:var(--primary);font-weight:600;font-family:inherit;font-size:0.85rem">Klicken zum Kopieren</span>
+                </div>
+            </div>
+
+            <!-- Gegner-Ergebnis importieren -->
+            <div style="margin-top:16px">
+                <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:8px">Ergebnis-Code deines Gegners eingeben:</p>
+                <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap">
+                    <input id="importResultInput" class="name-input" placeholder="Code einfuegen..."
+                        style="max-width:300px;margin:0;font-size:0.8rem">
+                    <button class="btn btn-primary" onclick="importResult()" style="padding:10px 18px">Importieren</button>
+                </div>
+                <div id="importResultMsg" style="margin-top:8px;font-size:0.85rem"></div>
+            </div>
+
             <div class="btn-group" style="justify-content:center;margin-top:20px">
-                <button class="btn btn-primary" onclick="shareResult('${encodeURIComponent(shareText)}')">Ergebnis teilen</button>
+                <button class="btn btn-primary" onclick="shareResult('${encodeURIComponent(shareText)}')">Per WhatsApp teilen</button>
                 <button class="btn btn-secondary" onclick="createChallenge()">Neue Challenge</button>
             </div>
         </div>
         ${comparisonHtml}
+
+        <!-- Detaillierte Fragenansicht -->
+        <div class="card" style="margin-top:20px">
+            <h3>Detaillierte Auswertung</h3>
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+                <span class="stat" style="font-size:0.8rem">Richtig: <strong style="color:var(--success)">${correct}</strong></span>
+                <span class="stat" style="font-size:0.8rem">Falsch: <strong style="color:var(--danger)">${wrong}</strong></span>
+                <span class="stat" style="font-size:0.8rem">Offen: <strong>${unanswered}</strong></span>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+                <button class="test-opt active" onclick="filterChallengeDetail('all',this)">Alle</button>
+                <button class="test-opt" onclick="filterChallengeDetail('wrong',this)">Nur Fehler</button>
+            </div>
+            <div id="challengeDetailList">${detailHtml}</div>
+        </div>
     `;
+
+    // Store detail HTML for filtering
+    window._challengeDetailAll = detailHtml;
+    window._challengeDetailWrong = cs.questions.map((q, i) => {
+        const ci = getCorrectIdx(q);
+        const ans = cs.answers[i];
+        if (ans === ci) return '';
+        const isPattern = q.type === 'pattern';
+        const answered = ans !== null;
+        return `<div style="background:var(--surface);border-radius:10px;padding:14px;margin-bottom:8px;border-left:3px solid ${!answered?'var(--text-muted)':'var(--danger)'}; box-shadow:var(--shadow)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.75rem;padding:3px 10px;border-radius:9999px;background:#fef2f2;color:var(--danger);font-weight:600">${answered?'Falsch':'Offen'}</span>
+                <span style="font-size:0.75rem;color:var(--text-muted)">${catNames[q.cat]||''}</span>
+            </div>
+            <div style="font-weight:600;font-size:0.9rem;margin:8px 0 6px">${i+1}. ${q.text}</div>
+            <div style="font-size:0.85rem">
+                ${!answered
+                    ? '<span style="color:var(--text-muted)">Nicht beantwortet</span>'
+                    : isPattern
+                        ? `<span style="color:var(--danger)">Deine Wahl: ${letters[ans]} ✗</span>`
+                        : `<span style="color:var(--danger)">Deine Antwort: ${letters[ans]} - ${q.options[ans]} ✗</span>`}
+                ${answered && !isPattern ? `<br><span style="color:var(--success)">Richtig: ${letters[ci]} - ${q.options[ci]}</span>` : ''}
+                <br><span style="color:var(--text-muted);font-size:0.8rem">${q.explanation}</span>
+            </div>
+        </div>`;
+    }).filter(Boolean).join('');
 
     renderChallengeHistory();
     challengeState = null;
+}
+
+function filterChallengeDetail(mode, btn) {
+    document.querySelectorAll('#challengeArea .card:last-child .test-opt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('challengeDetailList').innerHTML = mode === 'all' ? window._challengeDetailAll : window._challengeDetailWrong;
+}
+
+function importResult() {
+    const code = document.getElementById('importResultInput').value.trim();
+    const msgEl = document.getElementById('importResultMsg');
+    try {
+        const data = JSON.parse(atob(code));
+        if (!data.s && data.s !== 0) throw new Error('invalid');
+        // Save imported result
+        const imported = {
+            code: data.cd || '?',
+            name: data.n || 'Gegner',
+            score: data.s,
+            correct: data.c,
+            total: data.t,
+            time: data.tm,
+            date: new Date().toLocaleDateString('de-AT'),
+            imported: true
+        };
+        // Check for duplicates
+        const exists = challenges.some(c => c.code === imported.code && c.name === imported.name && c.score === imported.score);
+        if (!exists) {
+            challenges.push(imported);
+            localStorage.setItem('fhwien-challenges', JSON.stringify(challenges));
+        }
+        const tm = Math.floor(imported.time/60);
+        const ts = imported.time%60;
+        msgEl.innerHTML = `<div style="background:#ecfdf5;border-radius:10px;padding:12px;border:1px solid var(--success)">
+            <strong style="color:var(--success)">Ergebnis importiert!</strong><br>
+            <span style="color:var(--text)">${imported.name}: ${imported.score}% (${imported.correct}/${imported.total}) in ${tm}:${ts.toString().padStart(2,'0')}</span>
+        </div>`;
+        renderChallengeHistory();
+        // Refresh comparison section
+        const sameCode = challenges.filter(c => c.code === imported.code);
+        if (sameCode.length > 1) {
+            const sorted = [...sameCode].sort((a,b) => b.score - a.score || a.time - b.time);
+            const winner = sorted[0];
+            const compEl = document.querySelector('.results-panel');
+            if (compEl) {
+                const compDiv = document.createElement('div');
+                compDiv.className = 'card';
+                compDiv.style.marginTop = '20px';
+                compDiv.innerHTML = `<h3>Vergleich: ${imported.code}</h3>
+                    ${sorted.map((r, i) => {
+                        const medal = i === 0 ? 'gold' : i === 1 ? 'silver' : '';
+                        const rtm = Math.floor(r.time/60);
+                        const rts = r.time%60;
+                        return `<div class="lb-entry ${medal}">
+                            <div class="lb-rank" ${!medal?'style="background:var(--surface2)"':''}>${i+1}</div>
+                            <div class="lb-name">${r.name || 'Anonym'} ${r.imported?'(importiert)':''}
+                                <div class="lb-details">${r.correct}/${r.total} | ${rtm}:${rts.toString().padStart(2,'0')}</div>
+                            </div>
+                            <div class="lb-score">${r.score}%</div>
+                        </div>`;
+                    }).join('')}`;
+                compEl.after(compDiv);
+            }
+        }
+    } catch(e) {
+        msgEl.innerHTML = '<span style="color:var(--danger)">Ungueltiger Code! Bitte den kompletten Code einfuegen.</span>';
+    }
 }
 
 function shareResult(text) {
@@ -2585,7 +2742,7 @@ function shareResult(text) {
 
 function renderChallengeHistory() {
     const el = document.getElementById('challengeHistory');
-    if (!el || challenges.length === 0) return;
+    if (!el || challenges.length === 0) { if(el) el.innerHTML=''; return; }
 
     // Group by code
     const grouped = {};
